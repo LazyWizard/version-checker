@@ -8,17 +8,20 @@ import org.apache.log4j.Level;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.lazywizard.versionchecker.UpdateInfo.VersionInfo;
 
-// TODO: Retrieve remote version info in a separate thread
 public class VCModPlugin extends BaseModPlugin
 {
+    private static final String SETTINGS_FILE = "data/config/version/version_checker.json";
     private static final String CSV_PATH = "data/config/version/version_files.csv";
     private static UpdateNotificationScript script = null;
 
     @Override
     public void onApplicationLoad() throws Exception
     {
-        Global.getLogger(VersionChecker.class).setLevel(Level.WARN);
+        JSONObject settings = Global.getSettings().loadJSON(SETTINGS_FILE);
+        Global.getLogger(VersionChecker.class).setLevel(
+                Level.toLevel(settings.optString("logLevel", "WARN")));
 
         List<VersionInfo> versionFiles = new ArrayList<>();
         JSONArray csv = Global.getSettings().getMergedSpreadsheetDataForMod(
