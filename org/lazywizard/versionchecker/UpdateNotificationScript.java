@@ -1,6 +1,7 @@
 package org.lazywizard.versionchecker;
 
 import java.awt.Color;
+import java.text.DecimalFormat;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -46,7 +47,7 @@ class UpdateNotificationScript implements EveryFrameScript
             }
             catch (InterruptedException | ExecutionException | TimeoutException ex)
             {
-                Global.getLogger(UpdateNotificationScript.class).log(Level.FATAL,
+                Global.getLogger(VersionChecker.class).log(Level.FATAL,
                         "Failed to retrieve mod update info!", ex);
                 Global.getSector().getCampaignUI().addMessage(
                         "Failed to retrieve mod update info!", Color.RED);
@@ -56,7 +57,7 @@ class UpdateNotificationScript implements EveryFrameScript
             }
 
             // List mods with an update available
-            int modsWithUpdates = updateInfo.hasUpdates.size();
+            int modsWithUpdates = updateInfo.hasUpdate.size();
             if (modsWithUpdates == 0)
             {
                 Global.getSector().getCampaignUI().addMessage(
@@ -64,10 +65,17 @@ class UpdateNotificationScript implements EveryFrameScript
             }
             else
             {
+                int modsWithoutUpdates = updateInfo.hasNoUpdate.size();
+                if (modsWithoutUpdates > 0)
+                {
+                    Global.getSector().getCampaignUI().addMessage(
+                            modsWithoutUpdates + " mods are up to date.", Color.GREEN);
+                }
+
                 Global.getSector().getCampaignUI().addMessage(
                         "Found updates for " + modsWithUpdates
                         + (modsWithUpdates > 1 ? " mods:" : " mod:"), Color.YELLOW);
-                for (ModInfo tmp : updateInfo.hasUpdates)
+                for (ModInfo tmp : updateInfo.hasUpdate)
                 {
                     Global.getSector().getCampaignUI().addMessage(
                             " - " + tmp, Color.YELLOW);

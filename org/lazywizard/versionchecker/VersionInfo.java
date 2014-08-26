@@ -27,7 +27,7 @@ class VersionInfo
     boolean isOlderThan(VersionInfo other)
     {
         // DEBUG
-        Global.getLogger(VersionInfo.class).log(Level.DEBUG,
+        Global.getLogger(VersionChecker.class).log(Level.DEBUG,
                 modName + ": " + getVersion() + " vs " + other.getVersion());
 
         return (major < other.major)
