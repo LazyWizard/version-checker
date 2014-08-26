@@ -1,24 +1,20 @@
 package org.lazywizard.versionchecker;
 
+import java.util.ArrayList;
+import java.util.List;
+
 class UpdateInfo
 {
-    private final VersionInfo oldVersion, newVersion;
+    final List<ModInfo> hasUpdates = new ArrayList<>();
+    final List<VersionInfo> failedCheck = new ArrayList<>();
 
-    UpdateInfo(VersionInfo oldVersion, VersionInfo newVersion)
+    void addFailed(VersionInfo version)
     {
-        this.oldVersion = oldVersion;
-        this.newVersion = newVersion;
+        failedCheck.add(version);
     }
 
-    boolean isUpdateAvailable()
+    void addUpdate(ModInfo mod)
     {
-        return oldVersion.isOlderThan(newVersion);
-    }
-
-    @Override
-    public String toString()
-    {
-        return oldVersion.modName + " (" + oldVersion.getVersion() + " => "
-                + newVersion.getVersion() + ")";
+        hasUpdates.add(mod);
     }
 }
