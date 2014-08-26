@@ -14,6 +14,8 @@ import com.fs.starfarer.api.Global;
 import org.apache.log4j.Level;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.lazywizard.versionchecker.UpdateInfo.ModInfo;
+import org.lazywizard.versionchecker.UpdateInfo.VersionInfo;
 
 class VersionChecker
 {
@@ -81,7 +83,8 @@ class VersionChecker
     private static ModInfo checkForUpdate(final VersionInfo localVersion)
     {
         // Download the master version file for this mod
-        JSONObject remoteVersionFile = getRemoteVersionFile(localVersion.masterURL);
+        String masterURL = localVersion.getMasterURL();
+        JSONObject remoteVersionFile = getRemoteVersionFile(masterURL);
         if (remoteVersionFile == null)
         {
             return null;
@@ -138,11 +141,17 @@ class VersionChecker
                     results.addUpdate(tmp);
                 }
                 else
+                {
                     results.addNoUpdate(tmp);
+                }
             }
 
             results.finish();
             return results;
         }
+    }
+
+    private VersionChecker()
+    {
     }
 }
