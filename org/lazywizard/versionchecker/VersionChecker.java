@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.Callable;
@@ -19,25 +18,6 @@ import org.json.JSONObject;
 
 class VersionChecker
 {
-    public static void main(String[] args)
-    {
-        org.apache.log4j.BasicConfigurator.configure();
-
-        try (Scanner scanner = new Scanner(new File(
-                "C:\\Users\\Rob\\Desktop\\Starfarer Mods\\"
-                + "VersionChecker\\src\\versionchecker.version"), "UTF-8")
-                .useDelimiter("\\A"))
-        {
-            Global.getLogger(VersionChecker.class).log(Level.DEBUG,
-                    checkForUpdate(new VersionInfo(new JSONObject(
-                                            sanitizeJSON(scanner.next())))).toString());
-        }
-        catch (JSONException | IOException ex)
-        {
-            Global.getLogger(VersionChecker.class).log(Level.ERROR, ex);
-        }
-    }
-
     private static String sanitizeJSON(final String rawJSON)
     {
         StringBuilder result = new StringBuilder(rawJSON.length());
@@ -99,7 +79,7 @@ class VersionChecker
         }
     }
 
-    private static UpdateInfo checkForUpdate(final VersionInfo localVersion)
+    private static ModInfo checkForUpdate(final VersionInfo localVersion)
     {
         // Download the master version file for this mod
         JSONObject remoteVersionFile = getRemoteVersionFile(localVersion.masterURL);
@@ -121,19 +101,19 @@ class VersionChecker
             return null;
         }
 
-        return new UpdateInfo(localVersion, remoteVersion);
+        return new ModInfo(localVersion, remoteVersion);
     }
 
-    static Future<List<UpdateInfo>> scheduleUpdateCheck(final List<VersionInfo> localVersions)
+    static Future<UpdateInfo> scheduleUpdateCheck(final List<VersionInfo> localVersions)
     {
         ExecutorService service = Executors.newSingleThreadExecutor();
-        Future<List<UpdateInfo>> result = service.submit(
+        Future<UpdateInfo> result = service.submit(
                 new VersionCheckerCallable(localVersions));
         service.shutdown();
         return result;
     }
 
-    private static class VersionCheckerCallable implements Callable<List<UpdateInfo>>
+    private static class VersionCheckerCallable implements Callable<UpdateInfo>
     {
         private final List<VersionInfo> localVersions;
 
@@ -143,15 +123,20 @@ class VersionChecker
         }
 
         @Override
-        public List<UpdateInfo> call() throws Exception
+        public UpdateInfo call() throws Exception
         {
-            List<UpdateInfo> results = new ArrayList<>();
+            UpdateInfo results = new UpdateInfo();
             for (VersionInfo version : localVersions)
             {
-                UpdateInfo tmp = checkForUpdate(version);
-                if (tmp != null && tmp.isUpdateAvailable())
+                ModInfo tmp = checkForUpdate(version);
+
+                if (tmp == null)
                 {
-                    results.add(tmp);
+                    results.addFailed(version);
+                }
+                else if (tmp.isUpdateAvailable())
+                {
+                    results.addUpdate(tmp);
                 }
             }
 
