@@ -5,7 +5,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import com.fs.starfarer.api.Global;
 import org.apache.log4j.Level;
 import org.json.JSONException;
@@ -24,7 +30,7 @@ class VersionChecker
         {
             Global.getLogger(VersionChecker.class).log(Level.DEBUG,
                     checkForUpdate(new VersionInfo(new JSONObject(
-                            sanitizeJSON(scanner.next())))).toString());
+                                            sanitizeJSON(scanner.next())))).toString());
         }
         catch (JSONException | IOException ex)
         {
@@ -93,7 +99,7 @@ class VersionChecker
         }
     }
 
-    static UpdateInfo checkForUpdate(final VersionInfo localVersion)
+    private static UpdateInfo checkForUpdate(final VersionInfo localVersion)
     {
         // Download the master version file for this mod
         JSONObject remoteVersionFile = getRemoteVersionFile(localVersion.masterURL);
@@ -116,5 +122,40 @@ class VersionChecker
         }
 
         return new UpdateInfo(localVersion, remoteVersion);
+    }
+
+    static Future<List<UpdateInfo>> scheduleUpdateCheck(final List<VersionInfo> localVersions)
+    {
+        ExecutorService service = Executors.newSingleThreadExecutor();
+        Future<List<UpdateInfo>> result = service.submit(
+                new VersionCheckerCallable(localVersions));
+        service.shutdown();
+        return result;
+    }
+
+    private static class VersionCheckerCallable implements Callable<List<UpdateInfo>>
+    {
+        private final List<VersionInfo> localVersions;
+
+        private VersionCheckerCallable(final List<VersionInfo> localVersions)
+        {
+            this.localVersions = localVersions;
+        }
+
+        @Override
+        public List<UpdateInfo> call() throws Exception
+        {
+            List<UpdateInfo> results = new ArrayList<>();
+            for (VersionInfo version : localVersions)
+            {
+                UpdateInfo tmp = checkForUpdate(version);
+                if (tmp != null && tmp.isUpdateAvailable())
+                {
+                    results.add(tmp);
+                }
+            }
+
+            return results;
+        }
     }
 }
