@@ -1,7 +1,7 @@
 {
     #"masterVersionFile":"http://pastebin.com/raw.php?i=nC9kwWqy",
 	#"masterVersionFile":"https://bitbucket.org/LazyWizard/version-checker/raw/tip/versionchecker.version",
-    "masterVersionFile":"https://www2.dropb345ox.com/s/mg0u8vhjgyqmsaw/versionchecker.version?dl=1",
+    "masterVersionFile":"https://dl.dropboxusercontent.com/u/32722116/Version%20Files/versionchecker.version",
 	"modName":"Version Checker",
 	"modVersion":
 	{
@@ -9,5 +9,5 @@
 		"minor":1,
 		"patch":1
 	},
-	"starsectorVersion":".6.2a"
+	"starsectorVersion":".6.2a" # Unused
 }

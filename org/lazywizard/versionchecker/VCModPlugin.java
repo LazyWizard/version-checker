@@ -18,12 +18,14 @@ public class VCModPlugin extends BaseModPlugin
     @Override
     public void onApplicationLoad() throws Exception
     {
+        Global.getLogger(VersionChecker.class).setLevel(Level.WARN);
+
         List<VersionInfo> versionFiles = new ArrayList<>();
         JSONArray csv = Global.getSettings().getMergedSpreadsheetDataForMod(
                 "version file", CSV_PATH, "lw_version_checker");
 
         int numMods = csv.length();
-        Global.getLogger(VCModPlugin.class).log(Level.INFO,
+        Global.getLogger(VersionChecker.class).log(Level.INFO,
                 "Found " + numMods + " mods with version info");
         for (int x = 0; x < numMods; x++)
         {
@@ -36,7 +38,7 @@ public class VCModPlugin extends BaseModPlugin
             }
             catch (JSONException ex)
             {
-                Global.getLogger(VCModPlugin.class).log(Level.ERROR,
+                Global.getLogger(VersionChecker.class).log(Level.ERROR,
                         "Failed to parse version file \"" + versionFile + "\":", ex);
             }
         }

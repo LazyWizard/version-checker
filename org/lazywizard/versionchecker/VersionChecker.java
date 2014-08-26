@@ -1,6 +1,5 @@
 package org.lazywizard.versionchecker;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -58,21 +57,21 @@ class VersionChecker
         }
         catch (MalformedURLException ex)
         {
-            Global.getLogger(VCModPlugin.class).log(Level.ERROR,
+            Global.getLogger(VersionChecker.class).log(Level.ERROR,
                     "Invalid master version file URL \""
                     + versionFileURL + "\"", ex);
             return null;
         }
         catch (IOException ex)
         {
-            Global.getLogger(VCModPlugin.class).log(Level.ERROR,
+            Global.getLogger(VersionChecker.class).log(Level.ERROR,
                     "Failed to load master version file at URL \""
                     + versionFileURL + "\"", ex);
             return null;
         }
         catch (JSONException ex)
         {
-            Global.getLogger(VCModPlugin.class).log(Level.ERROR,
+            Global.getLogger(VersionChecker.class).log(Level.ERROR,
                     "Malformed JSON in remote version file at URL \""
                     + versionFileURL + "\"", ex);
             return null;
@@ -96,7 +95,7 @@ class VersionChecker
         }
         catch (JSONException ex)
         {
-            Global.getLogger(VCModPlugin.class).log(Level.ERROR,
+            Global.getLogger(VersionChecker.class).log(Level.ERROR,
                     "Failed to parse remote version info:", ex);
             return null;
         }
@@ -138,8 +137,11 @@ class VersionChecker
                 {
                     results.addUpdate(tmp);
                 }
+                else
+                    results.addNoUpdate(tmp);
             }
 
+            results.finish();
             return results;
         }
     }
