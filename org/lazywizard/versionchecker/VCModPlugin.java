@@ -18,7 +18,7 @@ public class VCModPlugin extends BaseModPlugin
     @Override
     public void onApplicationLoad() throws Exception
     {
-        List<UpdateInfo> updateInfo = new ArrayList<UpdateInfo>();
+        List<VersionInfo> versionFiles = new ArrayList<>();
         JSONArray csv = Global.getSettings().getMergedSpreadsheetDataForMod(
                 "version file", CSV_PATH, "lw_version_checker");
 
@@ -30,15 +30,9 @@ public class VCModPlugin extends BaseModPlugin
             JSONObject row = csv.getJSONObject(x);
             String versionFile = row.getString("version file");
 
-            // TODO: Move this to another thread
             try
             {
-                UpdateInfo info = VersionChecker.checkForUpdate(new VersionInfo(
-                        Global.getSettings().loadJSON(versionFile)));
-                if (info != null && info.isUpdateAvailable())
-                {
-                    updateInfo.add(info);
-                }
+                versionFiles.add(new VersionInfo(Global.getSettings().loadJSON(versionFile)));
             }
             catch (JSONException ex)
             {
@@ -47,9 +41,10 @@ public class VCModPlugin extends BaseModPlugin
             }
         }
 
-        if (!updateInfo.isEmpty())
+        if (!versionFiles.isEmpty())
         {
-            script = new UpdateNotificationScript(updateInfo);
+            script = new UpdateNotificationScript(
+                    VersionChecker.scheduleUpdateCheck(versionFiles));
         }
     }
 
