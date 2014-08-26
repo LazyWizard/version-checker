@@ -8,14 +8,16 @@ import org.json.JSONObject;
 class VersionInfo
 {
     final int major, minor, patch;
-    final String masterURL, name, gameVersion; // Unused for now
+    final String masterURL, modName, gameVersion;
 
     VersionInfo(final JSONObject versionFile) throws JSONException
     {
-        // Parse version file
+        // Parse mod details
         masterURL = versionFile.getString("masterVersionFile");
-        name = versionFile.optString("modName", "<unknown>");
+        modName = versionFile.optString("modName", "<unknown>");
         gameVersion = versionFile.optString("starsectorVersion", "");
+
+        // Parse version details
         JSONObject modVersion = versionFile.getJSONObject("modVersion");
         major = modVersion.optInt("major", 0);
         minor = modVersion.optInt("minor", 0);
@@ -25,9 +27,8 @@ class VersionInfo
     boolean isOlderThan(VersionInfo other)
     {
         // DEBUG
-        //Global.getLogger(VersionInfo.class).log(Level.DEBUG,
-        System.out.println(
-                name + " " + getVersion() + " vs " + other.getVersion());
+        Global.getLogger(VersionInfo.class).log(Level.DEBUG,
+                modName + ": " + getVersion() + " vs " + other.getVersion());
 
         return (major < other.major)
                 || (major == other.major && minor < other.minor)
@@ -36,12 +37,12 @@ class VersionInfo
 
     public String getVersion()
     {
-        return "v" + major + "." + minor + "." + patch;
+        return major + "." + minor + "." + patch;
     }
 
     @Override
     public String toString()
     {
-        return name + " " + getVersion();
+        return modName + " v" + getVersion();
     }
 }

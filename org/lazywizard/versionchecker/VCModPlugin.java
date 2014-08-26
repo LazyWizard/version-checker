@@ -1,8 +1,7 @@
 package org.lazywizard.versionchecker;
 
-import java.awt.Color;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import com.fs.starfarer.api.BaseModPlugin;
 import com.fs.starfarer.api.Global;
 import org.apache.log4j.Level;
@@ -14,12 +13,12 @@ import org.json.JSONObject;
 public class VCModPlugin extends BaseModPlugin
 {
     private static final String CSV_PATH = "data/config/version/version_files.csv";
-    private static boolean shouldWarn = false;
-    private static Set<String> modsWithUpdates;
+    private static UpdateNotificationScript script = null;
 
     @Override
     public void onApplicationLoad() throws Exception
     {
+        List<UpdateInfo> updateInfo = new ArrayList<UpdateInfo>();
         JSONArray csv = Global.getSettings().getMergedSpreadsheetDataForMod(
                 "version file", CSV_PATH, "lw_version_checker");
 
@@ -31,21 +30,14 @@ public class VCModPlugin extends BaseModPlugin
             JSONObject row = csv.getJSONObject(x);
             String versionFile = row.getString("version file");
 
+            // TODO: Move this to another thread
             try
             {
-
-                String update = VersionChecker.checkForUpdate(
-                        Global.getSettings().loadJSON(versionFile));
-
-                if (update != null)
+                UpdateInfo info = VersionChecker.checkForUpdate(new VersionInfo(
+                        Global.getSettings().loadJSON(versionFile)));
+                if (info != null && info.isUpdateAvailable())
                 {
-                    if (modsWithUpdates == null)
-                    {
-                        modsWithUpdates = new HashSet<>();
-                        shouldWarn = true;
-                    }
-
-                    modsWithUpdates.add(update);
+                    updateInfo.add(info);
                 }
             }
             catch (JSONException ex)
@@ -54,31 +46,20 @@ public class VCModPlugin extends BaseModPlugin
                         "Failed to parse version file \"" + versionFile + "\":", ex);
             }
         }
+
+        if (!updateInfo.isEmpty())
+        {
+            script = new UpdateNotificationScript(updateInfo);
+        }
     }
 
     @Override
     public void onGameLoad()
     {
-        if (shouldWarn)
+        if (script != null)
         {
-            if (modsWithUpdates == null || modsWithUpdates.isEmpty())
-            {
-                Global.getSector().getCampaignUI().addMessage(
-                        "All mods are up to date.", Color.GREEN);
-            }
-            else
-            {
-                Global.getSector().getCampaignUI().addMessage(
-                        "Updates found for mods: ", Color.YELLOW);
-                for (String tmp : modsWithUpdates)
-                {
-                    Global.getSector().getCampaignUI().addMessage(
-                            " - " + tmp, Color.YELLOW);
-                }
-            }
-
-            shouldWarn = false;
-            modsWithUpdates = null;
+            Global.getSector().addScript(script);
+            script = null;
         }
     }
 }
