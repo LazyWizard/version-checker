@@ -19,15 +19,15 @@ public class VCModPlugin extends BaseModPlugin
     @Override
     public void onApplicationLoad() throws Exception
     {
-        JSONObject settings = Global.getSettings().loadJSON(SETTINGS_FILE);
+        final JSONObject settings = Global.getSettings().loadJSON(SETTINGS_FILE);
         Global.getLogger(VersionChecker.class).setLevel(
                 Level.toLevel(settings.optString("logLevel", "WARN")));
 
-        List<VersionInfo> versionFiles = new ArrayList<>();
-        JSONArray csv = Global.getSettings().getMergedSpreadsheetDataForMod(
+        final List<VersionInfo> versionFiles = new ArrayList<>();
+        final JSONArray csv = Global.getSettings().getMergedSpreadsheetDataForMod(
                 "version file", CSV_PATH, "lw_version_checker");
 
-        int numMods = csv.length();
+        final int numMods = csv.length();
         Global.getLogger(VersionChecker.class).log(Level.INFO,
                 "Found " + numMods + " mods with version info");
         for (int x = 0; x < numMods; x++)
@@ -37,7 +37,8 @@ public class VCModPlugin extends BaseModPlugin
 
             try
             {
-                versionFiles.add(new VersionInfo(Global.getSettings().loadJSON(versionFile)));
+                versionFiles.add(new VersionInfo(
+                        Global.getSettings().loadJSON(versionFile), false));
             }
             catch (JSONException ex)
             {
