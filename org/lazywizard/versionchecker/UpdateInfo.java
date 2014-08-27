@@ -1,6 +1,5 @@
 package org.lazywizard.versionchecker;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -14,13 +13,7 @@ final class UpdateInfo
     private final List<ModInfo> hasUpdate = new ArrayList<>();
     private final List<ModInfo> hasNoUpdate = new ArrayList<>();
     private final List<VersionInfo> failedCheck = new ArrayList<>();
-    private final long startTime;
     private int numModsChecked = 0;
-
-    UpdateInfo()
-    {
-        startTime = System.nanoTime();
-    }
 
     void addFailed(VersionInfo version)
     {
@@ -60,15 +53,6 @@ final class UpdateInfo
         return Collections.<ModInfo>unmodifiableList(hasNoUpdate);
     }
 
-    void finish()
-    {
-        long elapsedTime = System.nanoTime() - startTime;
-        Global.getLogger(VersionChecker.class).log(Level.INFO,
-                "Checked " + numModsChecked + " mods in "
-                + DecimalFormat.getNumberInstance().format(
-                        elapsedTime / 1000000000.0d) + " seconds.");
-    }
-
     static final class ModInfo
     {
         private final VersionInfo oldVersion, newVersion;
@@ -106,7 +90,7 @@ final class UpdateInfo
 
             // Parse version details
             JSONObject modVersion = versionFile.getJSONObject("modVersion");
-            
+
             major = modVersion.optInt("major", 0);
             minor = modVersion.optInt("minor", 0);
             patch = modVersion.optInt("patch", 0);
