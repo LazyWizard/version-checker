@@ -9,7 +9,7 @@ import org.apache.log4j.Level;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-class UpdateInfo
+final class UpdateInfo
 {
     private final List<ModInfo> hasUpdate = new ArrayList<>();
     private final List<ModInfo> hasNoUpdate = new ArrayList<>();
@@ -69,7 +69,7 @@ class UpdateInfo
                         elapsedTime / 1000000000.0d) + " seconds.");
     }
 
-    static class ModInfo
+    static final class ModInfo
     {
         private final VersionInfo oldVersion, newVersion;
 
@@ -92,7 +92,7 @@ class UpdateInfo
         }
     }
 
-    static class VersionInfo
+    static final class VersionInfo
     {
         private final int major, minor, patch;
         private final String masterURL, modName; //, gameVersion;
@@ -106,6 +106,7 @@ class UpdateInfo
 
             // Parse version details
             JSONObject modVersion = versionFile.getJSONObject("modVersion");
+            
             major = modVersion.optInt("major", 0);
             minor = modVersion.optInt("minor", 0);
             patch = modVersion.optInt("patch", 0);

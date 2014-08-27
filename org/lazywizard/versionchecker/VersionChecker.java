@@ -17,7 +17,7 @@ import org.json.JSONObject;
 import org.lazywizard.versionchecker.UpdateInfo.ModInfo;
 import org.lazywizard.versionchecker.UpdateInfo.VersionInfo;
 
-class VersionChecker
+final class VersionChecker
 {
     private static String sanitizeJSON(final String rawJSON)
     {
