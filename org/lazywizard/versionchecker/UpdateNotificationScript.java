@@ -58,25 +58,23 @@ class UpdateNotificationScript implements EveryFrameScript
                 return;
             }
 
-            // List mods with an update available
             final List<ModInfo> hasUpdate = updateInfo.getHasUpdate();
             final List<ModInfo> hasNoUpdate = updateInfo.getHasNoUpdate();
             final List<VersionInfo> failedCheck = updateInfo.getFailed();
+            final int modsWithoutUpdates = hasNoUpdate.size();
             final int modsWithUpdates = hasUpdate.size();
-            if (modsWithUpdates == 0)
+            final int modsThatFailedUpdateCheck = failedCheck.size();
+
+            // Display number of mods that are up-to-date
+            if (modsWithoutUpdates > 0)
             {
                 Global.getSector().getCampaignUI().addMessage(
-                        "All mods are up to date.", Color.GREEN);
+                        modsWithoutUpdates + " mods are up to date.", Color.GREEN);
             }
-            else
-            {
-                int modsWithoutUpdates = hasNoUpdate.size();
-                if (modsWithoutUpdates > 0)
-                {
-                    Global.getSector().getCampaignUI().addMessage(
-                            modsWithoutUpdates + " mods are up to date.", Color.GREEN);
-                }
 
+            // List mods with an update available
+            if (modsWithUpdates > 0)
+            {
                 Global.getSector().getCampaignUI().addMessage(
                         "Found updates for " + modsWithUpdates
                         + (modsWithUpdates > 1 ? " mods:" : " mod:"), Color.YELLOW);
@@ -88,7 +86,6 @@ class UpdateNotificationScript implements EveryFrameScript
             }
 
             // List mods that failed the update check
-            final int modsThatFailedUpdateCheck = failedCheck.size();
             if (modsThatFailedUpdateCheck > 0)
             {
                 Global.getSector().getCampaignUI().addMessage(
