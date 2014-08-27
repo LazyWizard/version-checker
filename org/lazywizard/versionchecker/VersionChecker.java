@@ -94,7 +94,7 @@ class VersionChecker
         VersionInfo remoteVersion;
         try
         {
-            remoteVersion = new VersionInfo(remoteVersionFile);
+            remoteVersion = new VersionInfo(remoteVersionFile, true);
         }
         catch (JSONException ex)
         {

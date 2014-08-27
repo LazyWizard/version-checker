@@ -92,10 +92,10 @@ class UpdateInfo
         private final int major, minor, patch;
         private final String masterURL, modName; //, gameVersion;
 
-        VersionInfo(final JSONObject versionFile) throws JSONException
+        VersionInfo(final JSONObject versionFile, boolean isMaster) throws JSONException
         {
             // Parse mod details
-            masterURL = versionFile.getString("masterVersionFile");
+            masterURL = (isMaster ? "" : versionFile.getString("masterVersionFile"));
             modName = versionFile.optString("modName", "<unknown>");
             //gameVersion = versionFile.optString("starsectorVersion", "");
 

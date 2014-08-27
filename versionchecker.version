@@ -1,4 +1,17 @@
 {
+    # Points toward the online master .version file. This mod works by comparing
+    # the local and online version to check if there is a newer version available.
+    #
+    # The master file must be:
+    # - Online (duh)
+    # - Directly reachable (the URL goes to the raw file, not a redirect page)
+    # - Permanently linked and editable without the URL itself changing
+    # 
+    # Dropbox is the best host for this. Just make sure it is in your Public folder
+    # and that you got the URL by right-clicking and selecting "Copy public link"
+    # Bitbucket, GitHub, and other online repositories will also work as hosts.
+    #
+    # Example links for other common hosts:
     #"masterVersionFile":"http://pastebin.com/raw.php?i=nC9kwWqy",
     #"masterVersionFile":"https://bitbucket.org/LazyWizard/version-checker/raw/tip/versionchecker.version",
     "masterVersionFile":"https://dl.dropboxusercontent.com/u/32722116/Version%20Files/versionchecker.version",
@@ -9,5 +22,5 @@
         "minor":1,
         "patch":1
     },
-    "starsectorVersion":".6.2a" # Unused
+    "starsectorVersion":".6.2a" # Unused for now
 }
