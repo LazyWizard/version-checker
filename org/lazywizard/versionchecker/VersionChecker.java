@@ -47,6 +47,12 @@ class VersionChecker
 
     private static JSONObject getRemoteVersionFile(final String versionFileURL)
     {
+        // No master version URL entry was found in the .version file
+        if (versionFileURL == null)
+        {
+            return null;
+        }
+
         Global.getLogger(VersionChecker.class).log(Level.INFO,
                 "Loading version info from remote URL " + versionFileURL);
 

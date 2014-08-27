@@ -50,6 +50,11 @@ class UpdateInfo
         numModsChecked++;
     }
 
+    int getNumModsChecked()
+    {
+        return numModsChecked;
+    }
+
     List<ModInfo> getHasNoUpdate()
     {
         return Collections.<ModInfo>unmodifiableList(hasNoUpdate);
@@ -95,7 +100,7 @@ class UpdateInfo
         VersionInfo(final JSONObject versionFile, boolean isMaster) throws JSONException
         {
             // Parse mod details
-            masterURL = (isMaster ? "" : versionFile.getString("masterVersionFile"));
+            masterURL = (isMaster ? null : versionFile.getString("masterVersionFile"));
             modName = versionFile.optString("modName", "<unknown>");
             //gameVersion = versionFile.optString("starsectorVersion", "");
 
