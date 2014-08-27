@@ -10,7 +10,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.lazywizard.versionchecker.UpdateInfo.VersionInfo;
 
-public class VCModPlugin extends BaseModPlugin
+public final class VCModPlugin extends BaseModPlugin
 {
     private static final String SETTINGS_FILE = "data/config/version/version_checker.json";
     private static final String CSV_PATH = "data/config/version/version_files.csv";
@@ -42,8 +42,8 @@ public class VCModPlugin extends BaseModPlugin
             }
             catch (JSONException ex)
             {
-                Global.getLogger(VersionChecker.class).log(Level.ERROR,
-                        "Failed to parse version file \"" + versionFile + "\":", ex);
+                throw new RuntimeException("Failed to parse version file \""
+                        + versionFile + "\":", ex);
             }
         }
 

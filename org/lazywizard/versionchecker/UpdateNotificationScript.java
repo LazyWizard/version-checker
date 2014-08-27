@@ -8,11 +8,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.CampaignUIAPI;
 import org.apache.log4j.Level;
 import org.lazywizard.versionchecker.UpdateInfo.ModInfo;
 import org.lazywizard.versionchecker.UpdateInfo.VersionInfo;
 
-class UpdateNotificationScript implements EveryFrameScript
+final class UpdateNotificationScript implements EveryFrameScript
 {
     private boolean hasWarned = false;
     private final Future<UpdateInfo> futureUpdateInfo;
@@ -37,7 +38,8 @@ class UpdateNotificationScript implements EveryFrameScript
     @Override
     public void advance(float amount)
     {
-        if (futureUpdateInfo.isDone())
+        CampaignUIAPI ui = Global.getSector().getCampaignUI();
+        if (!ui.isShowingDialog() && futureUpdateInfo.isDone())
         {
             hasWarned = true;
 
@@ -50,11 +52,9 @@ class UpdateNotificationScript implements EveryFrameScript
             catch (InterruptedException | ExecutionException | TimeoutException ex)
             {
                 Global.getLogger(VersionChecker.class).log(Level.FATAL,
-                        "Failed to retrieve mod update info!", ex);
-                Global.getSector().getCampaignUI().addMessage(
-                        "Failed to retrieve mod update info!", Color.RED);
-                Global.getSector().getCampaignUI().addMessage(
-                        "Check starsector.log for details.", Color.RED);
+                        "Failed to retrieve mod update info", ex);
+                ui.addMessage("Failed to retrieve mod update info!", Color.RED);
+                ui.addMessage("Check starsector.log for details.", Color.RED);
                 return;
             }
 
@@ -68,33 +68,28 @@ class UpdateNotificationScript implements EveryFrameScript
             // Display number of mods that are up-to-date
             if (modsWithoutUpdates > 0)
             {
-                Global.getSector().getCampaignUI().addMessage(
-                        modsWithoutUpdates + " mods are up to date.", Color.GREEN);
+                ui.addMessage(modsWithoutUpdates + " mods are up to date.", Color.GREEN);
             }
 
             // List mods with an update available
             if (modsWithUpdates > 0)
             {
-                Global.getSector().getCampaignUI().addMessage(
-                        "Found updates for " + modsWithUpdates
+                ui.addMessage("Found updates for " + modsWithUpdates
                         + (modsWithUpdates > 1 ? " mods:" : " mod:"), Color.YELLOW);
                 for (ModInfo tmp : hasUpdate)
                 {
-                    Global.getSector().getCampaignUI().addMessage(
-                            " - " + tmp, Color.YELLOW);
+                    ui.addMessage(" - " + tmp, Color.YELLOW);
                 }
             }
 
             // List mods that failed the update check
             if (modsThatFailedUpdateCheck > 0)
             {
-                Global.getSector().getCampaignUI().addMessage(
-                        "Update check failed for " + modsThatFailedUpdateCheck
+                ui.addMessage("Update check failed for " + modsThatFailedUpdateCheck
                         + (modsThatFailedUpdateCheck > 1 ? " mods:" : " mod:"), Color.RED);
                 for (VersionInfo tmp : failedCheck)
                 {
-                    Global.getSector().getCampaignUI().addMessage(
-                            " - " + tmp, Color.RED);
+                    ui.addMessage(" - " + tmp, Color.RED);
                 }
             }
         }
