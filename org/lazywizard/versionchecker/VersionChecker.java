@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.Callable;
@@ -133,7 +134,8 @@ final class VersionChecker
         @Override
         public UpdateInfo call() throws Exception
         {
-            UpdateInfo results = new UpdateInfo();
+            final long startTime = System.nanoTime();
+            final UpdateInfo results = new UpdateInfo();
             for (VersionInfo version : localVersions)
             {
                 ModInfo tmp = checkForUpdate(version);
@@ -152,7 +154,11 @@ final class VersionChecker
                 }
             }
 
-            results.finish();
+            final String elapsedTime = DecimalFormat.getNumberInstance().format(
+                    (System.nanoTime() - startTime) / 1000000000.0d);
+            Global.getLogger(VersionChecker.class).log(Level.INFO,
+                    "Checked " + results.getNumModsChecked() + " mods in "
+                    + elapsedTime + " seconds.");
             return results;
         }
     }
