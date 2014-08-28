@@ -78,7 +78,8 @@ final class UpdateInfo
 
     static final class VersionInfo
     {
-        private final int major, minor, patch;
+        private final int major, minor;
+        private final String patch;
         private final String masterURL, modName; //, gameVersion;
 
         VersionInfo(final JSONObject versionFile, boolean isMaster) throws JSONException
@@ -93,7 +94,7 @@ final class UpdateInfo
 
             major = modVersion.optInt("major", 0);
             minor = modVersion.optInt("minor", 0);
-            patch = modVersion.optInt("patch", 0);
+            patch = modVersion.optString("patch", "0");
         }
 
         boolean isOlderThan(VersionInfo other)
@@ -104,7 +105,8 @@ final class UpdateInfo
 
             return (major < other.major)
                     || (major == other.major && minor < other.minor)
-                    || (major == other.major && minor == other.minor && patch < other.patch);
+                    || (major == other.major && minor == other.minor
+                    && patch.compareToIgnoreCase(other.patch) < 0);
         }
 
         String getName()
@@ -112,10 +114,26 @@ final class UpdateInfo
             return modName;
         }
 
+        private static boolean isNumerical(String str)
+        {
+            // Search for non-numeric characters in the string
+            for (char tmp : str.toCharArray())
+            {
+                if (!Character.isDigit(tmp))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         String getVersion()
         {
-            if (patch == 0)
+            // Don't show patch number if there isn't one
+            if (patch.equals("0"))
             {
+                // Don't show minor version if there isn't one
                 if (minor == 0)
                 {
                     return "" + major;
@@ -126,7 +144,15 @@ final class UpdateInfo
                 }
             }
 
-            return major + "." + minor + "." + patch;
+            // Support for character patch notation (v2.4b vs v2.4.1)
+            if (isNumerical(patch))
+            {
+                return major + "." + minor + "." + patch;
+            }
+            else
+            {
+                return major + "." + minor + patch;
+            }
         }
 
         String getMasterURL()

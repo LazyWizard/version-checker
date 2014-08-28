@@ -43,7 +43,7 @@ public final class VCModPlugin extends BaseModPlugin
             catch (JSONException ex)
             {
                 throw new RuntimeException("Failed to parse version file \""
-                        + versionFile + "\":", ex);
+                        + versionFile + "\"", ex);
             }
         }
 
