@@ -71,8 +71,8 @@ final class UpdateInfo
         @Override
         public String toString()
         {
-            return oldVersion.modName + " (" + oldVersion.getVersion() + " => "
-                    + newVersion.getVersion() + ")";
+            return oldVersion.getName() + " (" + oldVersion.getVersion()
+                    + " => " + newVersion.getVersion() + ")";
         }
     }
 

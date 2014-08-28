@@ -27,11 +27,13 @@ final class VersionChecker
         // Remove elements that default JSON implementation can't parse
         for (final String str : rawJSON.split("\n"))
         {
+            // Strip out whole-line comments
             if (str.trim().startsWith("#"))
             {
                 continue;
             }
 
+            // Strip out end-line comments
             // TODO: Detect when within quotation marks (# would be valid then)
             if (str.contains("#"))
             {
@@ -120,11 +122,13 @@ final class VersionChecker
             return null;
         }
 
+        // Return a container for version files that lets us compare the two
         return new ModInfo(localVersion, remoteVersion);
     }
 
     static Future<UpdateInfo> scheduleUpdateCheck(final List<VersionInfo> localVersions)
     {
+        // Start another thread to handle the update checks and wait on the results
         ExecutorService service = Executors.newSingleThreadExecutor();
         Future<UpdateInfo> result = service.submit(
                 new VersionCheckerCallable(localVersions));
@@ -144,26 +148,31 @@ final class VersionChecker
         @Override
         public UpdateInfo call() throws Exception
         {
+            // Check for updates for every registered mod
             final long startTime = System.nanoTime();
             final UpdateInfo results = new UpdateInfo();
             for (VersionInfo version : localVersions)
             {
                 ModInfo tmp = checkForUpdate(version);
 
+                // Update check failed for some reason
                 if (tmp == null)
                 {
                     results.addFailed(version);
                 }
+                // Remote version is newer than local
                 else if (tmp.isUpdateAvailable())
                 {
                     results.addUpdate(tmp);
                 }
+                // Remote version is older/same as local
                 else
                 {
                     results.addNoUpdate(tmp);
                 }
             }
 
+            // Report how long the check took
             final String elapsedTime = DecimalFormat.getNumberInstance().format(
                     (System.nanoTime() - startTime) / 1000000000.0d);
             Global.getLogger(VersionChecker.class).log(Level.INFO,
