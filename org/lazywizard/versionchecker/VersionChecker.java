@@ -48,9 +48,19 @@ final class VersionChecker
 
     private static JSONObject getRemoteVersionFile(final String versionFileURL)
     {
-        // No master version URL entry was found in the .version file
+        // No valid master version URL entry was found in the .version file
         if (versionFileURL == null)
         {
+            return null;
+        }
+
+        // Don't allow local files outside of dev mode
+        if (!Global.getSettings().isDevMode()
+                && versionFileURL.trim().toLowerCase().startsWith("file:"))
+        {
+            Global.getLogger(VersionChecker.class).log(Level.ERROR,
+                    "Local URLs are not allowed unless devmode is enabled: \""
+                    + versionFileURL + "\"");
             return null;
         }
 
