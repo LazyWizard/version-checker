@@ -1,0 +1,8 @@
+ Version 1.1 (August 28, 2014)
+===============================
+Local master version files allowed when dev mode is enabled (prefix w/ file://)
+Patch field can now be a String (allowing v2.4b instead of v2.4.1)
+
+ Version 1.0 (August 27, 2014)
+===============================
+Initial release
