@@ -1,3 +1,7 @@
+ Version 1.1b (August 31, 2014)
+================================
+Fixed serialization crash when starting a new game before update check is done
+
  Version 1.1 (August 28, 2014)
 ===============================
 Local master version files allowed when dev mode is enabled (prefix w/ file://)
