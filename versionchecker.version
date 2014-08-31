@@ -11,17 +11,19 @@
     # and that you get the URL by right-clicking and selecting "Copy public link"
     # Bitbucket, GitHub, and other online repositories will also work as hosts.
     #
-    # Example links for other common hosts:
+    # Example links for common hosts:
     #"masterVersionFile":"https://bitbucket.org/LazyWizard/version-checker/raw/tip/versionchecker.version",
     #"masterVersionFile":"https://bitbucket.org/LazyWizard/version-checker/downloads/versionchecker.version",
     "masterVersionFile":"https://dl.dropboxusercontent.com/u/32722116/Version%20Files/versionchecker.version",
     "modName":"Version Checker",
-    # Trailing zeroes are ignored. 2.1.0 shows up as v2.1, 4.0.0 as v4, etc
+    # Notation is major.minor.patch, trailing zeros are ignored
+    # This means version 2.1.0 shows up as v2.1, version 4.0.0 as v4, etc
+    # If you use major.minor notation you can just leave patch at 0
     "modVersion":
     {
         "major":1,
         "minor":1,
-        "patch":0 # Can also be a character or string (a, b, "-RC2", etc)
+        "patch":b # Can also be a character or string (a, b, "-RC2", etc)
     },
     "starsectorVersion":".6.2a" # Unused for now
 }
