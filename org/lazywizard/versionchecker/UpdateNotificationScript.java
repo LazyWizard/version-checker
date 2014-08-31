@@ -15,13 +15,12 @@ import org.lazywizard.versionchecker.UpdateInfo.VersionInfo;
 
 final class UpdateNotificationScript implements EveryFrameScript
 {
-    private transient boolean hasWarned = true;
+    private boolean hasWarned = false;
     private transient final Future<UpdateInfo> futureUpdateInfo;
 
     UpdateNotificationScript(final Future<UpdateInfo> updateInfo)
     {
         this.futureUpdateInfo = updateInfo;
-        hasWarned = false;
     }
 
     @Override
