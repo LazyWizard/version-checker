@@ -145,7 +145,7 @@ final class VersionChecker
 
         private int getNumberOfThreads()
         {
-            return Math.max(1, Math.min(MAX_THREADS, (localVersions.size() / 3) + 1));
+            return Math.max(1, Math.min(MAX_THREADS, localVersions.size()));
         }
 
         private CompletionService<ModInfo> createCompletionService()
