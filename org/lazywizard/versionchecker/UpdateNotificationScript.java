@@ -52,7 +52,7 @@ final class UpdateNotificationScript implements EveryFrameScript
             }
             catch (InterruptedException | ExecutionException | TimeoutException ex)
             {
-                Global.getLogger(VersionChecker.class).log(Level.FATAL,
+                Global.getLogger(VersionChecker.class).log(Level.ERROR,
                         "Failed to retrieve mod update info", ex);
                 ui.addMessage("Failed to retrieve mod update info!", Color.RED);
                 ui.addMessage("Check starsector.log for details.", Color.RED);
