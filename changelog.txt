@@ -1,6 +1,7 @@
  Version 1.2 (September XX, 2014)
 ==================================
-Update check now uses a thread pool (this makes the check much faster)
+Update check uses a thread pool (now much faster when checking many mods)
+Removed unused "starsectorVersion" field from .version file format
 
  Version 1.1b (August 31, 2014)
 ================================
