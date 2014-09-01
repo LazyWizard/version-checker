@@ -14,7 +14,7 @@ public final class VCModPlugin extends BaseModPlugin
 {
     private static final String SETTINGS_FILE = "data/config/version/version_checker.json";
     private static final String CSV_PATH = "data/config/version/version_files.csv";
-    private static UpdateNotificationScript script = null;
+    static UpdateNotificationScript script = null;
 
     @Override
     public void onApplicationLoad() throws Exception
@@ -58,10 +58,21 @@ public final class VCModPlugin extends BaseModPlugin
     @Override
     public void onGameLoad()
     {
-        if (script != null)
+        if (script != null && !script.isDone())
         {
             Global.getSector().addScript(script);
-            script = null;
         }
+    }
+
+    @Override
+    public void beforeGameSave()
+    {
+        Global.getSector().removeScriptsOfClass(UpdateNotificationScript.class);
+    }
+
+    @Override
+    public void afterGameSave()
+    {
+        onGameLoad();
     }
 }
