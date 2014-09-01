@@ -11,6 +11,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import com.fs.starfarer.api.Global;
 import org.apache.log4j.Level;
 import org.json.JSONException;
@@ -48,7 +49,7 @@ final class VersionChecker
         return result.toString();
     }
 
-    private static JSONObject getRemoteVersionFile(final String versionFileURL)
+    private static VersionInfo getRemoteVersionFile(final String versionFileURL)
     {
         // No valid master version URL entry was found in the .version file
         if (versionFileURL == null)
@@ -69,12 +70,12 @@ final class VersionChecker
         Global.getLogger(VersionChecker.class).log(Level.INFO,
                 "Loading version info from remote URL " + versionFileURL);
 
-        // Load JSON from external URL
+        // Load JSON from external URL and parse version info
         try (InputStream stream = new URL(versionFileURL).openStream();
                 Scanner scanner = new Scanner(stream, "UTF-8").useDelimiter("\\A"))
         {
-            String rawText = scanner.next();
-            return new JSONObject(sanitizeJSON(rawText));
+            return new VersionInfo(new JSONObject(sanitizeJSON(scanner.next())), true);
+
         }
         catch (MalformedURLException ex)
         {
@@ -102,23 +103,11 @@ final class VersionChecker
     private static ModInfo checkForUpdate(final VersionInfo localVersion)
     {
         // Download the master version file for this mod
-        String masterURL = localVersion.getMasterURL();
-        JSONObject remoteVersionFile = getRemoteVersionFile(masterURL);
-        if (remoteVersionFile == null)
-        {
-            return null;
-        }
+        VersionInfo remoteVersion = getRemoteVersionFile(localVersion.getMasterURL());
 
-        // Parse remote version information
-        VersionInfo remoteVersion;
-        try
+        // Return null if downloading/parsing the master file failed
+        if (remoteVersion == null)
         {
-            remoteVersion = new VersionInfo(remoteVersionFile, true);
-        }
-        catch (JSONException ex)
-        {
-            Global.getLogger(VersionChecker.class).log(Level.ERROR,
-                    "Failed to parse remote version info:", ex);
             return null;
         }
 
@@ -129,11 +118,10 @@ final class VersionChecker
     static Future<UpdateInfo> scheduleUpdateCheck(final List<VersionInfo> localVersions)
     {
         // Start another thread to handle the update checks and wait on the results
-        ExecutorService service = Executors.newSingleThreadExecutor();
-        Future<UpdateInfo> result = service.submit(
+        FutureTask<UpdateInfo> task = new FutureTask<>(
                 new VersionCheckerCallable(localVersions));
-        service.shutdown();
-        return result;
+        new Thread(task, "Thread-VC").start();
+        return task;
     }
 
     private static class VersionCheckerCallable implements Callable<UpdateInfo>
