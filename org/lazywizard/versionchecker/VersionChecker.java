@@ -25,7 +25,7 @@ import org.lazywizard.versionchecker.UpdateInfo.VersionInfo;
 
 final class VersionChecker
 {
-    private static int MAX_THREADS = 5;
+    private static int MAX_THREADS = 12;
 
     static void setMaxThreads(int maxThreads)
     {
@@ -183,7 +183,7 @@ final class VersionChecker
                 modsToCheck--;
 
                 // Update check failed for some reason
-                if (tmp.didFail())
+                if (tmp.failedUpdateCheck())
                 {
                     results.addFailed(tmp.getLocalVersion());
                 }
@@ -208,7 +208,7 @@ final class VersionChecker
             return results;
         }
 
-        private class SubTask implements Callable<ModInfo>
+        private static class SubTask implements Callable<ModInfo>
         {
             final VersionInfo version;
 

@@ -56,11 +56,13 @@ final class UpdateInfo
     static final class ModInfo
     {
         private final VersionInfo oldVersion, newVersion;
+        private final boolean failedUpdate;
 
         ModInfo(VersionInfo oldVersion, VersionInfo newVersion)
         {
             this.oldVersion = oldVersion;
             this.newVersion = newVersion;
+            failedUpdate = (newVersion == null);
         }
 
         VersionInfo getLocalVersion()
@@ -73,9 +75,9 @@ final class UpdateInfo
             return newVersion;
         }
 
-        boolean didFail()
+        boolean failedUpdateCheck()
         {
-            return (newVersion == null);
+            return failedUpdate;
         }
 
         boolean isUpdateAvailable()
@@ -87,21 +89,20 @@ final class UpdateInfo
         public String toString()
         {
             return oldVersion.getName() + " (" + oldVersion.getVersion() + " => "
-                    + (didFail() ? "null" : newVersion.getVersion()) + ")";
+                    + (failedUpdate ? "null" : newVersion.getVersion()) + ")";
         }
     }
 
     static final class VersionInfo
     {
         private final int major, minor;
-        private final String patch;
-        private final String masterURL, modName;
+        private final String patch, masterURL, modName;
 
         VersionInfo(final JSONObject versionFile, boolean isMaster) throws JSONException
         {
-            // Parse mod details
+            // Parse mod details (local version file only)
             masterURL = (isMaster ? null : versionFile.getString("masterVersionFile"));
-            modName = versionFile.optString("modName", "<unknown>");
+            modName = (isMaster ? null : versionFile.optString("modName", "<unknown>"));
 
             // Parse version details
             JSONObject modVersion = versionFile.getJSONObject("modVersion");
