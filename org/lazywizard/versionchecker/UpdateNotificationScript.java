@@ -42,6 +42,7 @@ final class UpdateNotificationScript implements EveryFrameScript
         if (!ui.isShowingDialog() && futureUpdateInfo.isDone())
         {
             hasWarned = true;
+            VCModPlugin.script = null;
 
             // Attempt to retrieve the update results from the other thread
             UpdateInfo updateInfo;
