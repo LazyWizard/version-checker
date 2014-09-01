@@ -1,4 +1,8 @@
 {
+    # The maximum number of separate threads to use when checking for updates
+    # The number of threads used is <# of mods> / 3, so this will rarely matter
+    "maxThreads":5,
+
     # Valid levels: OFF, FATAL, ERROR, WARN, INFO, DEBUG, ALL
     "logLevel":"INFO"
 }

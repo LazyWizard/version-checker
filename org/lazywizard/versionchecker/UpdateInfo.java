@@ -63,6 +63,21 @@ final class UpdateInfo
             this.newVersion = newVersion;
         }
 
+        VersionInfo getLocalVersion()
+        {
+            return oldVersion;
+        }
+
+        VersionInfo getMasterVersion()
+        {
+            return newVersion;
+        }
+
+        boolean didFail()
+        {
+            return (newVersion == null);
+        }
+
         boolean isUpdateAvailable()
         {
             return oldVersion.isOlderThan(newVersion);
@@ -71,8 +86,8 @@ final class UpdateInfo
         @Override
         public String toString()
         {
-            return oldVersion.getName() + " (" + oldVersion.getVersion()
-                    + " => " + newVersion.getVersion() + ")";
+            return oldVersion.getName() + " (" + oldVersion.getVersion() + " => "
+                    + (didFail() ? "null" : newVersion.getVersion()) + ")";
         }
     }
 
@@ -99,6 +114,11 @@ final class UpdateInfo
 
         boolean isOlderThan(VersionInfo other)
         {
+            if (other == null)
+            {
+                return false;
+            }
+
             // DEBUG
             Global.getLogger(VersionChecker.class).log(Level.DEBUG,
                     modName + ": " + getVersion() + " vs " + other.getVersion());

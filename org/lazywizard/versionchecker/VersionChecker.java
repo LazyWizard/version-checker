@@ -8,10 +8,14 @@ import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.ThreadFactory;
 import com.fs.starfarer.api.Global;
 import org.apache.log4j.Level;
 import org.json.JSONException;
@@ -21,6 +25,13 @@ import org.lazywizard.versionchecker.UpdateInfo.VersionInfo;
 
 final class VersionChecker
 {
+    private static int MAX_THREADS = 5;
+
+    static void setMaxThreads(int maxThreads)
+    {
+        MAX_THREADS = maxThreads;
+    }
+
     private static String sanitizeJSON(final String rawJSON)
     {
         StringBuilder result = new StringBuilder(rawJSON.length());
@@ -70,7 +81,7 @@ final class VersionChecker
         Global.getLogger(VersionChecker.class).log(Level.INFO,
                 "Loading version info from remote URL " + versionFileURL);
 
-        // Load JSON from external URL and parse version info
+        // Load JSON from external URL and parse version info from it
         try (InputStream stream = new URL(versionFileURL).openStream();
                 Scanner scanner = new Scanner(stream, "UTF-8").useDelimiter("\\A"))
         {
@@ -105,10 +116,10 @@ final class VersionChecker
         // Download the master version file for this mod
         VersionInfo remoteVersion = getRemoteVersionFile(localVersion.getMasterURL());
 
-        // Return null if downloading/parsing the master file failed
+        // Return null master if downloading/parsing the master file failed
         if (remoteVersion == null)
         {
-            return null;
+            return new ModInfo(localVersion, null);
         }
 
         // Return a container for version files that lets us compare the two
@@ -118,35 +129,63 @@ final class VersionChecker
     static Future<UpdateInfo> scheduleUpdateCheck(final List<VersionInfo> localVersions)
     {
         // Start another thread to handle the update checks and wait on the results
-        FutureTask<UpdateInfo> task = new FutureTask<>(
-                new VersionCheckerCallable(localVersions));
-        new Thread(task, "Thread-VC").start();
+        FutureTask<UpdateInfo> task = new FutureTask<>(new MainTask(localVersions));
+        new Thread(task, "Thread-VC-Main").start();
         return task;
     }
 
-    private static class VersionCheckerCallable implements Callable<UpdateInfo>
+    private static final class MainTask implements Callable<UpdateInfo>
     {
         private final List<VersionInfo> localVersions;
 
-        private VersionCheckerCallable(final List<VersionInfo> localVersions)
+        private MainTask(final List<VersionInfo> localVersions)
         {
             this.localVersions = localVersions;
         }
 
-        @Override
-        public UpdateInfo call() throws Exception
+        private int getNumberOfThreads()
         {
-            // Check for updates for every registered mod
-            final long startTime = System.nanoTime();
-            final UpdateInfo results = new UpdateInfo();
-            for (VersionInfo version : localVersions)
+            return Math.max(1, Math.min(MAX_THREADS, localVersions.size() / 3));
+        }
+
+        private CompletionService<ModInfo> createCompletionService()
+        {
+            // Create thread pool and executor
+            ExecutorService serviceInternal = Executors.newFixedThreadPool(
+                    getNumberOfThreads(), new VCThreadFactory());
+            CompletionService<ModInfo> service = new ExecutorCompletionService<>(serviceInternal);
+
+            // Register update checks with thread executor
+            for (final VersionInfo version : localVersions)
             {
-                ModInfo tmp = checkForUpdate(version);
+                service.submit(new SubTask(version));
+            }
+
+            return service;
+        }
+
+        @Override
+        public UpdateInfo call() throws InterruptedException, ExecutionException
+        {
+            Global.getLogger(VersionChecker.class).log(Level.INFO,
+                    "Starting update checks");
+            final long startTime = System.nanoTime();
+
+            // Check for updates in separate threads for faster execution
+            CompletionService<ModInfo> service = createCompletionService();
+            final UpdateInfo results = new UpdateInfo();
+
+            // Poll for results from the other threads until all have finished
+            int modsToCheck = localVersions.size();
+            while (modsToCheck > 0)
+            {
+                ModInfo tmp = service.take().get(); // Throws exceptions
+                modsToCheck--;
 
                 // Update check failed for some reason
-                if (tmp == null)
+                if (tmp.didFail())
                 {
-                    results.addFailed(version);
+                    results.addFailed(tmp.getLocalVersion());
                 }
                 // Remote version is newer than local
                 else if (tmp.isUpdateAvailable())
@@ -165,8 +204,39 @@ final class VersionChecker
                     (System.nanoTime() - startTime) / 1000000000.0d);
             Global.getLogger(VersionChecker.class).log(Level.INFO,
                     "Checked " + results.getNumModsChecked() + " mods in "
-                    + elapsedTime + " seconds.");
+                    + elapsedTime + " seconds");
             return results;
+        }
+
+        private class SubTask implements Callable<ModInfo>
+        {
+            final VersionInfo version;
+
+            private SubTask(VersionInfo version)
+            {
+                this.version = version;
+            }
+
+            @Override
+            public ModInfo call() throws Exception
+            {
+                return checkForUpdate(version);
+            }
+        }
+    }
+
+    private static final class VCThreadFactory implements ThreadFactory
+    {
+        private int threadNum = 0;
+
+        @Override
+        public Thread newThread(Runnable r)
+        {
+            threadNum++;
+            Thread thread = new Thread(r, "Thread-VC-" + threadNum);
+            thread.setDaemon(true);
+            thread.setPriority(3);
+            return thread;
         }
     }
 
