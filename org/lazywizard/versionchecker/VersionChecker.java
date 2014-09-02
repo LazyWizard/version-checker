@@ -32,7 +32,7 @@ final class VersionChecker
         MAX_THREADS = maxThreads;
     }
 
-    private static String sanitizeJSON(final String rawJSON)
+    private static JSONObject sanitizeJSON(final String rawJSON) throws JSONException
     {
         StringBuilder result = new StringBuilder(rawJSON.length());
 
@@ -57,7 +57,7 @@ final class VersionChecker
             }
         }
 
-        return result.toString();
+        return new JSONObject(result.toString());
     }
 
     private static VersionInfo getRemoteVersionFile(final String versionFileURL)
@@ -85,7 +85,7 @@ final class VersionChecker
         try (InputStream stream = new URL(versionFileURL).openStream();
                 Scanner scanner = new Scanner(stream, "UTF-8").useDelimiter("\\A"))
         {
-            return new VersionInfo(new JSONObject(sanitizeJSON(scanner.next())), true);
+            return new VersionInfo(sanitizeJSON(scanner.next()), true);
 
         }
         catch (MalformedURLException ex)
