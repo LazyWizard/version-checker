@@ -46,7 +46,6 @@ final class VersionChecker
             }
 
             // Strip out end-line comments
-            // TODO: Detect when within quotation marks (# would be valid then)
             if (str.contains("#"))
             {
                 result.append(str.substring(0, str.lastIndexOf('#')));
@@ -130,7 +129,9 @@ final class VersionChecker
     {
         // Start another thread to handle the update checks and wait on the results
         FutureTask<UpdateInfo> task = new FutureTask<>(new MainTask(localVersions));
-        new Thread(task, "Thread-VC-Main").start();
+        Thread thread = new Thread(task, "Thread-VC-Main");
+        thread.setDaemon(true);
+        thread.start();
         return task;
     }
 

@@ -55,24 +55,24 @@ final class UpdateInfo
 
     static final class ModInfo
     {
-        private final VersionInfo oldVersion, newVersion;
+        private final VersionInfo localVersion, remoteVersion;
         private final boolean failedUpdate;
 
-        ModInfo(VersionInfo oldVersion, VersionInfo newVersion)
+        ModInfo(VersionInfo localVersion, VersionInfo remoteVersion)
         {
-            this.oldVersion = oldVersion;
-            this.newVersion = newVersion;
-            failedUpdate = (newVersion == null);
+            this.localVersion = localVersion;
+            this.remoteVersion = remoteVersion;
+            failedUpdate = (remoteVersion == null);
         }
 
         VersionInfo getLocalVersion()
         {
-            return oldVersion;
+            return localVersion;
         }
 
-        VersionInfo getMasterVersion()
+        VersionInfo getRemoteVersion()
         {
-            return newVersion;
+            return remoteVersion;
         }
 
         boolean failedUpdateCheck()
@@ -82,14 +82,14 @@ final class UpdateInfo
 
         boolean isUpdateAvailable()
         {
-            return oldVersion.isOlderThan(newVersion);
+            return localVersion.isOlderThan(remoteVersion);
         }
 
         @Override
         public String toString()
         {
-            return oldVersion.getName() + " (" + oldVersion.getVersion() + " => "
-                    + (failedUpdate ? "null" : newVersion.getVersion()) + ")";
+            return localVersion.getName() + " (" + localVersion.getVersion() + " => "
+                    + (failedUpdate ? "null" : remoteVersion.getVersion()) + ")";
         }
     }
 
