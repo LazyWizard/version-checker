@@ -95,7 +95,9 @@ final class UpdateInfo
 
     static final class VersionInfo
     {
-        private final int major, minor;
+        private static final String MOD_THREAD_FORMAT
+                = "http://fractalsoftworks.com/forum/index.php?topic=%d.0";
+        private final int major, minor, modThreadId;
         private final String patch, masterURL, modName;
 
         VersionInfo(final JSONObject versionFile, boolean isMaster) throws JSONException
@@ -103,6 +105,7 @@ final class UpdateInfo
             // Parse mod details (local version file only)
             masterURL = (isMaster ? null : versionFile.getString("masterVersionFile"));
             modName = (isMaster ? null : versionFile.optString("modName", "<unknown>"));
+            modThreadId = (isMaster ? 0 : (int) versionFile.optDouble("modThreadId", 177));
 
             // Parse version details
             JSONObject modVersion = versionFile.getJSONObject("modVersion");
@@ -178,6 +181,11 @@ final class UpdateInfo
         String getMasterURL()
         {
             return masterURL;
+        }
+
+        String getThreadURL()
+        {
+            return String.format(MOD_THREAD_FORMAT, modThreadId);
         }
 
         @Override
