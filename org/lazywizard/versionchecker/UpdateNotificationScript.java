@@ -35,64 +35,77 @@ final class UpdateNotificationScript implements EveryFrameScript
         return false;
     }
 
+    private void warnUpdates(CampaignUIAPI ui)
+    {
+        // Attempt to retrieve the update results from the other thread
+        UpdateInfo updateInfo;
+        try
+        {
+            updateInfo = futureUpdateInfo.get(1l, TimeUnit.SECONDS);
+        }
+        catch (InterruptedException | ExecutionException | TimeoutException ex)
+        {
+            Global.getLogger(VersionChecker.class).log(Level.ERROR,
+                    "Failed to retrieve mod update info", ex);
+            ui.addMessage("Failed to retrieve mod update info!", Color.RED);
+            ui.addMessage("Check starsector.log for details.", Color.RED);
+            return;
+        }
+
+        final List<ModInfo> hasUpdate = updateInfo.getHasUpdate();
+        final List<ModInfo> hasNoUpdate = updateInfo.getHasNoUpdate();
+        final List<VersionInfo> failedCheck = updateInfo.getFailed();
+        final int modsWithoutUpdates = hasNoUpdate.size();
+        final int modsWithUpdates = hasUpdate.size();
+        final int modsThatFailedUpdateCheck = failedCheck.size();
+
+        // Display number of mods that are up-to-date
+        if (modsWithoutUpdates > 0)
+        {
+            ui.addMessage(modsWithoutUpdates + " mods are up to date.", Color.GREEN);
+        }
+
+        // List mods with an update available
+        if (modsWithUpdates > 0)
+        {
+            ui.addMessage("Found updates for " + modsWithUpdates
+                    + (modsWithUpdates > 1 ? " mods:" : " mod:"), Color.YELLOW);
+            for (ModInfo tmp : hasUpdate)
+            {
+                ui.addMessage(" - " + tmp, Color.YELLOW);
+            }
+        }
+
+        // List mods that failed the update check
+        if (modsThatFailedUpdateCheck > 0)
+        {
+            ui.addMessage("Update check failed for " + modsThatFailedUpdateCheck
+                    + (modsThatFailedUpdateCheck > 1 ? " mods:" : " mod:"), Color.RED);
+            for (VersionInfo tmp : failedCheck)
+            {
+                ui.addMessage(" - " + tmp, Color.RED);
+            }
+        }
+    }
+
     @Override
     public void advance(float amount)
     {
+        // Don't do anything while in a menu/dialog
         CampaignUIAPI ui = Global.getSector().getCampaignUI();
-        if (!ui.isShowingDialog() && futureUpdateInfo.isDone())
+        if (ui.isShowingDialog())
         {
+            return;
+        }
+
+        // On first game load, warn about any updates available
+        if (!hasWarned && futureUpdateInfo.isDone())
+        {
+            warnUpdates(ui);
             hasWarned = true;
             VCModPlugin.script = null;
-
-            // Attempt to retrieve the update results from the other thread
-            UpdateInfo updateInfo;
-            try
-            {
-                updateInfo = futureUpdateInfo.get(1l, TimeUnit.SECONDS);
-            }
-            catch (InterruptedException | ExecutionException | TimeoutException ex)
-            {
-                Global.getLogger(VersionChecker.class).log(Level.ERROR,
-                        "Failed to retrieve mod update info", ex);
-                ui.addMessage("Failed to retrieve mod update info!", Color.RED);
-                ui.addMessage("Check starsector.log for details.", Color.RED);
-                return;
-            }
-
-            final List<ModInfo> hasUpdate = updateInfo.getHasUpdate();
-            final List<ModInfo> hasNoUpdate = updateInfo.getHasNoUpdate();
-            final List<VersionInfo> failedCheck = updateInfo.getFailed();
-            final int modsWithoutUpdates = hasNoUpdate.size();
-            final int modsWithUpdates = hasUpdate.size();
-            final int modsThatFailedUpdateCheck = failedCheck.size();
-
-            // Display number of mods that are up-to-date
-            if (modsWithoutUpdates > 0)
-            {
-                ui.addMessage(modsWithoutUpdates + " mods are up to date.", Color.GREEN);
-            }
-
-            // List mods with an update available
-            if (modsWithUpdates > 0)
-            {
-                ui.addMessage("Found updates for " + modsWithUpdates
-                        + (modsWithUpdates > 1 ? " mods:" : " mod:"), Color.YELLOW);
-                for (ModInfo tmp : hasUpdate)
-                {
-                    ui.addMessage(" - " + tmp, Color.YELLOW);
-                }
-            }
-
-            // List mods that failed the update check
-            if (modsThatFailedUpdateCheck > 0)
-            {
-                ui.addMessage("Update check failed for " + modsThatFailedUpdateCheck
-                        + (modsThatFailedUpdateCheck > 1 ? " mods:" : " mod:"), Color.RED);
-                for (VersionInfo tmp : failedCheck)
-                {
-                    ui.addMessage(" - " + tmp, Color.RED);
-                }
-            }
         }
+
+        // TODO: Add ability to summon detailed update report
     }
 }
