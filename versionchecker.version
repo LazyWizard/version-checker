@@ -30,7 +30,7 @@
     "modVersion":
     {
         "major":1,
-        "minor":1,
-        "patch":b # Can also be a character or string (a, b, "-RC2", etc)
+        "minor":2,
+        "patch":0 # Can also be a character or string (a, b, "-RC2", etc)
     }
 }

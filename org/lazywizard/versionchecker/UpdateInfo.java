@@ -159,7 +159,7 @@ final class UpdateInfo
                 // Don't show minor version if there isn't one
                 if (minor == 0)
                 {
-                    return "" + major;
+                    return Integer.toString(major);
                 }
                 else
                 {
@@ -182,6 +182,11 @@ final class UpdateInfo
         {
             return masterURL;
         }
+
+        /*String getHost() throws URISyntaxException
+        {
+            return new URI(masterURL).getHost();
+        }*/
 
         String getThreadURL()
         {

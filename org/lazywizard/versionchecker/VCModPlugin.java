@@ -20,7 +20,7 @@ public final class VCModPlugin extends BaseModPlugin
     public void onApplicationLoad() throws Exception
     {
         final JSONObject settings = Global.getSettings().loadJSON(SETTINGS_FILE);
-        VersionChecker.setMaxThreads(settings.optInt("maxThreads", 12));
+        VersionChecker.setMaxThreads(settings.optInt("maxUpdateThreads", 6));
         Global.getLogger(VersionChecker.class).setLevel(
                 Level.toLevel(settings.optString("logLevel", "WARN")));
 
