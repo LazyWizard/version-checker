@@ -186,7 +186,7 @@ final class VersionChecker
                 // Update check failed for some reason
                 if (tmp.failedUpdateCheck())
                 {
-                    results.addFailed(tmp.getLocalVersion());
+                    results.addFailed(new ModInfo(tmp.getLocalVersion(), null));
                 }
                 // Remote version is newer than local
                 else if (tmp.isUpdateAvailable())
