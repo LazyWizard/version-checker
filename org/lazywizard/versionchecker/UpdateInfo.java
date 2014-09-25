@@ -1,7 +1,6 @@
 package org.lazywizard.versionchecker;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import com.fs.starfarer.api.Global;
 import org.apache.log4j.Level;
@@ -12,18 +11,18 @@ final class UpdateInfo
 {
     private final List<ModInfo> hasUpdate = new ArrayList<>();
     private final List<ModInfo> hasNoUpdate = new ArrayList<>();
-    private final List<VersionInfo> failedCheck = new ArrayList<>();
+    private final List<ModInfo> failedCheck = new ArrayList<>();
     private int numModsChecked = 0;
 
-    void addFailed(VersionInfo version)
+    void addFailed(ModInfo mod)
     {
-        failedCheck.add(version);
+        failedCheck.add(mod);
         numModsChecked++;
     }
 
-    List<VersionInfo> getFailed()
+    List<ModInfo> getFailed()
     {
-        return Collections.<VersionInfo>unmodifiableList(failedCheck);
+        return failedCheck;
     }
 
     void addUpdate(ModInfo mod)
@@ -34,7 +33,7 @@ final class UpdateInfo
 
     List<ModInfo> getHasUpdate()
     {
-        return Collections.<ModInfo>unmodifiableList(hasUpdate);
+        return hasUpdate;
     }
 
     void addNoUpdate(ModInfo mod)
@@ -50,10 +49,10 @@ final class UpdateInfo
 
     List<ModInfo> getHasNoUpdate()
     {
-        return Collections.<ModInfo>unmodifiableList(hasNoUpdate);
+        return hasNoUpdate;
     }
 
-    static final class ModInfo
+    static final class ModInfo implements Comparable<ModInfo>
     {
         private final VersionInfo localVersion, remoteVersion;
         private final boolean failedUpdate;
@@ -91,6 +90,12 @@ final class UpdateInfo
             return localVersion.getName() + " (" + localVersion.getVersion() + " => "
                     + (failedUpdate ? "null" : remoteVersion.getVersion()) + ")";
         }
+
+        @Override
+        public int compareTo(ModInfo other)
+        {
+            return localVersion.getName().compareTo(other.localVersion.getName());
+        }
     }
 
     static final class VersionInfo
@@ -105,7 +110,7 @@ final class UpdateInfo
             // Parse mod details (local version file only)
             masterURL = (isMaster ? null : versionFile.getString("masterVersionFile"));
             modName = (isMaster ? null : versionFile.optString("modName", "<unknown>"));
-            modThreadId = (isMaster ? 0 : (int) versionFile.optDouble("modThreadId", 177));
+            modThreadId = (isMaster ? 0 : (int) versionFile.optDouble("modThreadId", 0));
 
             // Parse version details
             JSONObject modVersion = versionFile.getJSONObject("modVersion");
@@ -184,12 +189,16 @@ final class UpdateInfo
         }
 
         /*String getHost() throws URISyntaxException
-        {
-            return new URI(masterURL).getHost();
-        }*/
-
+         {
+         return new URI(masterURL).getHost();
+         }*/
         String getThreadURL()
         {
+            if (modThreadId == 0)
+            {
+                return null;
+            }
+
             return String.format(MOD_THREAD_FORMAT, modThreadId);
         }
 
