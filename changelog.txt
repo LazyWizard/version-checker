@@ -1,5 +1,7 @@
  Version 1.2 (September XX, 2014)
 ==================================
+Can summon a dialog in campaign to display update information (default key: V)
+You can launch directly to a mod's forum thread from within this dialog
 Update check uses a thread pool (much faster when checking many mods)
 Added "maxUpdateThreads" option to version_checker.json
 Added optional "modThreadId" field to .version file format
