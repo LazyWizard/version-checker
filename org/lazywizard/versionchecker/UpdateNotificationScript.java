@@ -205,12 +205,24 @@ final class UpdateNotificationScript implements EveryFrameScript
             switch (menu)
             {
                 case MAIN_MENU:
-                    text.addParagraph("There are " + hasNoUpdate.size()
-                            + " up-to-date mods.", Color.GREEN);
-                    text.addParagraph("There are " + hasUpdate.size()
-                            + " mods with updates available.", Color.YELLOW);
-                    text.addParagraph("There are " + hasUpdate.size()
-                            + " mods that failed their update check.", Color.RED);
+                    String numUpToDate = Integer.toString(hasNoUpdate.size());
+                    String numHasUpdate = Integer.toString(hasUpdate.size());
+                    String numFailed = Integer.toString(failedCheck.size());
+
+                    text.addParagraph("There are " + numUpToDate
+                            + " up-to-date mods.");
+                    text.highlightInLastPara(Color.GREEN, numUpToDate);
+
+                    text.addParagraph("There are " + numHasUpdate
+                            + " mods with updates available.");
+                    text.highlightInLastPara((hasUpdate.size() > 0
+                            ? Color.YELLOW : Color.GREEN), numHasUpdate);
+
+                    text.addParagraph("There are " + numFailed
+                            + " mods that failed their update check.");
+                    text.highlightInLastPara((failedCheck.size() > 0
+                            ? Color.RED : Color.GREEN), numFailed);
+
                     dialog.setPromptText("Select an option:");
                     options.addOption("List mods with updates", Menu.LIST_UPDATES);
                     options.setEnabled(Menu.LIST_UPDATES, !hasUpdate.isEmpty());
@@ -251,6 +263,7 @@ final class UpdateNotificationScript implements EveryFrameScript
 
         private void goToMod(ModInfo mod)
         {
+            // TODO: go to detailed update info page for specific mod;
         }
 
         @Override
@@ -266,14 +279,17 @@ final class UpdateNotificationScript implements EveryFrameScript
         @Override
         public void optionSelected(String optionText, Object optionData)
         {
+            // Option was a menu? Go to that menu
             if (optionData instanceof Menu)
             {
                 goToMenu((Menu) optionData);
             }
+            // Option was a mod? Go to mod details page
             else if (optionData instanceof ModInfo)
             {
                 goToMod((ModInfo) optionData);
             }
+            // Option was version data? Launch that mod's forum thread
             else if (optionData instanceof VersionInfo)
             {
                 try
