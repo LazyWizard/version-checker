@@ -157,6 +157,7 @@ final class UpdateNotificationScript implements EveryFrameScript
             LIST_FAILED,
             PREVIOUS_PAGE,
             NEXT_PAGE,
+            RETURN,
             EXIT
         }
 
@@ -179,9 +180,8 @@ final class UpdateNotificationScript implements EveryFrameScript
                     max = Math.min(offset + ENTRIES_PER_PAGE, currentList.size());
             for (int x = offset; x < max; x++)
             {
-                VersionInfo local = currentList.get(x).getLocalVersion();
-                options.addOption((x + 1) + ": " + local.getName(), local);
-                options.setEnabled(local, local.getThreadURL() != null);
+                ModInfo mod = currentList.get(x);
+                options.addOption((x + 1) + ": " + mod.getLocalVersion().getName(), mod);
             }
 
             // Support for multiple pages of options
@@ -194,8 +194,31 @@ final class UpdateNotificationScript implements EveryFrameScript
                 options.addOption("Next page", Menu.NEXT_PAGE);
             }
 
-            dialog.setPromptText("Select a mod to go to its forum thread:");
+            dialog.setPromptText("Select a mod for detailed version information:");
             options.addOption("Main menu", Menu.MAIN_MENU);
+        }
+
+        private void goToMod(ModInfo mod)
+        {
+            options.clearOptions();
+            VersionInfo local = mod.getLocalVersion();
+
+            if (mod.isUpdateAvailable())
+            {
+                text.addParagraph("Update available for "
+                        + mod, Color.YELLOW);
+            }
+            else
+            {
+                text.addParagraph(local.getName() + " is up-to-date ("
+                        + local.getVersion() + ")", Color.GREEN);
+            }
+
+            options.addOption("Go to forum thread", local);
+            options.setEnabled(local, local.getThreadURL() != null);
+
+            dialog.setPromptText("Select an option:");
+            options.addOption("Back", Menu.RETURN);
         }
 
         private void goToMenu(Menu menu)
@@ -255,15 +278,13 @@ final class UpdateNotificationScript implements EveryFrameScript
                     currentPage++;
                     generateModMenu();
                     break;
+                case RETURN:
+                    generateModMenu();
+                    break;
                 case EXIT:
                 default:
                     dialog.dismiss();
             }
-        }
-
-        private void goToMod(ModInfo mod)
-        {
-            // TODO: go to detailed update info page for specific mod;
         }
 
         @Override
@@ -279,6 +300,8 @@ final class UpdateNotificationScript implements EveryFrameScript
         @Override
         public void optionSelected(String optionText, Object optionData)
         {
+            text.addParagraph(optionText, Color.CYAN);
+
             // Option was a menu? Go to that menu
             if (optionData instanceof Menu)
             {
