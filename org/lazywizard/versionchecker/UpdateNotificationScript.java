@@ -28,7 +28,7 @@ import org.lwjgl.input.Keyboard;
 
 final class UpdateNotificationScript implements EveryFrameScript
 {
-    private float timeUntilWarn = 1f;
+    private float timeUntilWarn = 1.5f; // Ensures text appears
     private boolean isUpdateCheckDone = false, hasWarned = false;
     private transient Future<UpdateInfo> futureUpdateInfo;
     private transient UpdateInfo updateInfo;
@@ -55,40 +55,45 @@ final class UpdateNotificationScript implements EveryFrameScript
         final List<ModInfo> hasUpdate = updateInfo.getHasUpdate();
         final List<ModInfo> hasNoUpdate = updateInfo.getHasNoUpdate();
         final List<ModInfo> failedCheck = updateInfo.getFailed();
-        final int modsWithoutUpdates = hasNoUpdate.size();
-        final int modsWithUpdates = hasUpdate.size();
-        final int modsThatFailedUpdateCheck = failedCheck.size();
+        final String modsWithoutUpdates = Integer.toString(hasNoUpdate.size());
+        final String modsWithUpdates = Integer.toString(hasUpdate.size());
+        final String modsThatFailedUpdateCheck = Integer.toString(failedCheck.size());
 
         // Display number of mods that are up-to-date
-        if (modsWithoutUpdates > 0)
+        if (hasNoUpdate.size() > 0)
         {
-            ui.addMessage(modsWithoutUpdates + " mods are up to date.", Color.GREEN);
+            ui.addMessage(modsWithoutUpdates + " mods are up to date.",
+                    modsWithoutUpdates, Color.GREEN);
         }
 
-        // List mods with an update available
-        if (modsWithUpdates > 0)
+        // Display number of mods with an update available
+        if (hasUpdate.size() > 0)
         {
             ui.addMessage("Found updates for " + modsWithUpdates
-                    + (modsWithUpdates > 1 ? " mods:" : " mod:"), Color.YELLOW);
-            for (ModInfo tmp : hasUpdate)
-            {
-                ui.addMessage(" - " + tmp.getName() + " ("
-                        + tmp.getVersionString() + ")", Color.YELLOW);
-            }
+                    + (hasUpdate.size() > 1 ? " mods:" : " mod:"),
+                    modsWithUpdates, Color.YELLOW);
+            /*for (ModInfo tmp : hasUpdate)
+             {
+             ui.addMessage(" - " + tmp.getName() + " ("
+             + tmp.getVersionString() + ")", Color.YELLOW);
+             }*/
         }
 
-        // List mods that failed the update check
-        if (modsThatFailedUpdateCheck > 0)
+        // Display number of mods that failed the update check
+        if (failedCheck.size() > 0)
         {
             ui.addMessage("Update check failed for " + modsThatFailedUpdateCheck
-                    + (modsThatFailedUpdateCheck > 1 ? " mods:" : " mod:"), Color.RED);
-            for (ModInfo tmp : failedCheck)
-            {
-                ui.addMessage(" - " + tmp.getName(), Color.RED);
-            }
+                    + (failedCheck.size() > 1 ? " mods:" : " mod:"),
+                    modsThatFailedUpdateCheck, Color.RED);
+            /*for (ModInfo tmp : failedCheck)
+             {
+             ui.addMessage(" - " + tmp.getName(), Color.RED);
+             }*/
         }
 
-        ui.addMessage("Press \"V\" for detailed update information.", Color.CYAN);
+        String keyName = Keyboard.getKeyName(VCModPlugin.notificationKey);
+        ui.addMessage("Press " + keyName + " for detailed update information.",
+                keyName, Color.CYAN);
     }
 
     @Override
@@ -140,8 +145,7 @@ final class UpdateNotificationScript implements EveryFrameScript
         }
 
         // User can press a key to summon a detailed update report
-        // TODO: Make this configurable
-        if (Keyboard.isKeyDown(Keyboard.KEY_V))
+        if (Keyboard.isKeyDown(VCModPlugin.notificationKey))
         {
             ui.showInteractionDialog(new UpdateNotificationDialog(updateInfo),
                     Global.getSector().getPlayerFleet());
@@ -322,6 +326,7 @@ final class UpdateNotificationScript implements EveryFrameScript
             this.options = dialog.getOptionPanel();
             this.text = dialog.getTextPanel();
 
+            dialog.setTextWidth(dialog.getTextWidth() * 1.5f);
             goToMenu(Menu.MAIN_MENU);
         }
 

@@ -92,8 +92,26 @@ final class UpdateInfo
 
         public String getVersionString()
         {
-            return localVersion.getVersion() + " => "
-                    + (failedUpdate ? "null" : remoteVersion.getVersion());
+            if (failedUpdate)
+            {
+                return localVersion.getVersion();
+            }
+
+            String operator;
+            if (localVersion.isOlderThan(remoteVersion))
+            {
+                operator = " <= ";
+            }
+            else if (localVersion.isNewerThan(remoteVersion))
+            {
+                operator = " => ";
+            }
+            else
+            {
+                operator = " == ";
+            }
+
+            return localVersion.getVersion() + operator + remoteVersion.getVersion();
         }
 
         @Override
@@ -139,6 +157,11 @@ final class UpdateInfo
                     || (major == other.major && minor < other.minor)
                     || (major == other.major && minor == other.minor
                     && patch.compareToIgnoreCase(other.patch) < 0);
+        }
+
+        boolean isNewerThan(VersionFile other)
+        {
+            return other.isOlderThan(this);
         }
 
         String getName()
