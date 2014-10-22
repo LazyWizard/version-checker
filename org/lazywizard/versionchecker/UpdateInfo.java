@@ -7,6 +7,7 @@ import org.apache.log4j.Level;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+// TODO: ModInfo and VersionInfo need some cleanup
 final class UpdateInfo
 {
     private final List<ModInfo> hasUpdate = new ArrayList<>();
@@ -22,7 +23,7 @@ final class UpdateInfo
 
     List<ModInfo> getFailed()
     {
-        return failedCheck;
+        return new ArrayList<>(failedCheck);
     }
 
     void addUpdate(ModInfo mod)
@@ -33,7 +34,7 @@ final class UpdateInfo
 
     List<ModInfo> getHasUpdate()
     {
-        return hasUpdate;
+        return new ArrayList<>(hasUpdate);
     }
 
     void addNoUpdate(ModInfo mod)
@@ -49,27 +50,32 @@ final class UpdateInfo
 
     List<ModInfo> getHasNoUpdate()
     {
-        return hasNoUpdate;
+        return new ArrayList<>(hasNoUpdate);
     }
 
     static final class ModInfo implements Comparable<ModInfo>
     {
-        private final VersionInfo localVersion, remoteVersion;
+        private final VersionFile localVersion, remoteVersion;
         private final boolean failedUpdate;
 
-        ModInfo(VersionInfo localVersion, VersionInfo remoteVersion)
+        ModInfo(VersionFile localVersion, VersionFile remoteVersion)
         {
             this.localVersion = localVersion;
             this.remoteVersion = remoteVersion;
             failedUpdate = (remoteVersion == null);
         }
 
-        VersionInfo getLocalVersion()
+        String getName()
+        {
+            return localVersion.getName();
+        }
+
+        VersionFile getLocalVersion()
         {
             return localVersion;
         }
 
-        VersionInfo getRemoteVersion()
+        VersionFile getRemoteVersion()
         {
             return remoteVersion;
         }
@@ -84,11 +90,10 @@ final class UpdateInfo
             return localVersion.isOlderThan(remoteVersion);
         }
 
-        @Override
-        public String toString()
+        public String getVersionString()
         {
-            return localVersion.getName() + " (" + localVersion.getVersion() + " => "
-                    + (failedUpdate ? "null" : remoteVersion.getVersion()) + ")";
+            return localVersion.getVersion() + " => "
+                    + (failedUpdate ? "null" : remoteVersion.getVersion());
         }
 
         @Override
@@ -98,29 +103,28 @@ final class UpdateInfo
         }
     }
 
-    static final class VersionInfo
+    static final class VersionFile
     {
         private static final String MOD_THREAD_FORMAT
                 = "http://fractalsoftworks.com/forum/index.php?topic=%d.0";
         private final int major, minor, modThreadId;
         private final String patch, masterURL, modName;
 
-        VersionInfo(final JSONObject versionFile, boolean isMaster) throws JSONException
+        VersionFile(final JSONObject json, boolean isMaster) throws JSONException
         {
             // Parse mod details (local version file only)
-            masterURL = (isMaster ? null : versionFile.getString("masterVersionFile"));
-            modName = (isMaster ? null : versionFile.optString("modName", "<unknown>"));
-            modThreadId = (isMaster ? 0 : (int) versionFile.optDouble("modThreadId", 0));
+            masterURL = (isMaster ? null : json.getString("masterVersionFile"));
+            modName = (isMaster ? null : json.optString("modName", "<unknown>"));
+            modThreadId = (isMaster ? 0 : (int) json.optDouble("modThreadId", 0));
 
-            // Parse version details
-            JSONObject modVersion = versionFile.getJSONObject("modVersion");
-
+            // Parse version number
+            JSONObject modVersion = json.getJSONObject("modVersion");
             major = modVersion.optInt("major", 0);
             minor = modVersion.optInt("minor", 0);
             patch = modVersion.optString("patch", "0");
         }
 
-        boolean isOlderThan(VersionInfo other)
+        boolean isOlderThan(VersionFile other)
         {
             if (other == null)
             {
@@ -161,25 +165,17 @@ final class UpdateInfo
             // Don't show patch number if there isn't one
             if (patch.equals("0"))
             {
-                // Don't show minor version if there isn't one
-                if (minor == 0)
-                {
-                    return Integer.toString(major);
-                }
-                else
-                {
-                    return major + "." + minor;
-                }
+                return "v" + major + "." + minor;
             }
 
             // Support for character patch notation (v2.4b vs v2.4.1)
             if (isNumerical(patch))
             {
-                return major + "." + minor + "." + patch;
+                return "v" + major + "." + minor + "." + patch;
             }
             else
             {
-                return major + "." + minor + patch;
+                return "v" + major + "." + minor + patch;
             }
         }
 
@@ -188,10 +184,6 @@ final class UpdateInfo
             return masterURL;
         }
 
-        /*String getHost() throws URISyntaxException
-         {
-         return new URI(masterURL).getHost();
-         }*/
         String getThreadURL()
         {
             if (modThreadId == 0)
@@ -205,7 +197,7 @@ final class UpdateInfo
         @Override
         public String toString()
         {
-            return getName() + " v" + getVersion();
+            return getName() + " " + getVersion();
         }
     }
 }

@@ -21,7 +21,7 @@ import org.apache.log4j.Level;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.lazywizard.versionchecker.UpdateInfo.ModInfo;
-import org.lazywizard.versionchecker.UpdateInfo.VersionInfo;
+import org.lazywizard.versionchecker.UpdateInfo.VersionFile;
 
 final class VersionChecker
 {
@@ -59,7 +59,7 @@ final class VersionChecker
         return new JSONObject(result.toString());
     }
 
-    private static VersionInfo getRemoteVersionFile(final String versionFileURL)
+    private static VersionFile getRemoteVersionFile(final String versionFileURL)
     {
         // No valid master version URL entry was found in the .version file
         if (versionFileURL == null)
@@ -84,7 +84,7 @@ final class VersionChecker
         try (InputStream stream = new URL(versionFileURL).openStream();
                 Scanner scanner = new Scanner(stream, "UTF-8").useDelimiter("\\A"))
         {
-            return new VersionInfo(sanitizeJSON(scanner.next()), true);
+            return new VersionFile(sanitizeJSON(scanner.next()), true);
 
         }
         catch (MalformedURLException ex)
@@ -110,10 +110,10 @@ final class VersionChecker
         }
     }
 
-    private static ModInfo checkForUpdate(final VersionInfo localVersion)
+    private static ModInfo checkForUpdate(final VersionFile localVersion)
     {
         // Download the master version file for this mod
-        VersionInfo remoteVersion = getRemoteVersionFile(localVersion.getMasterURL());
+        VersionFile remoteVersion = getRemoteVersionFile(localVersion.getMasterURL());
 
         // Return null master if downloading/parsing the master file failed
         if (remoteVersion == null)
@@ -125,7 +125,7 @@ final class VersionChecker
         return new ModInfo(localVersion, remoteVersion);
     }
 
-    static Future<UpdateInfo> scheduleUpdateCheck(final List<VersionInfo> localVersions)
+    static Future<UpdateInfo> scheduleUpdateCheck(final List<VersionFile> localVersions)
     {
         // Start another thread to handle the update checks and wait on the results
         FutureTask<UpdateInfo> task = new FutureTask<>(new MainTask(localVersions));
@@ -137,9 +137,9 @@ final class VersionChecker
 
     private static final class MainTask implements Callable<UpdateInfo>
     {
-        private final List<VersionInfo> localVersions;
+        private final List<VersionFile> localVersions;
 
-        private MainTask(final List<VersionInfo> localVersions)
+        private MainTask(final List<VersionFile> localVersions)
         {
             this.localVersions = localVersions;
         }
@@ -157,7 +157,7 @@ final class VersionChecker
             CompletionService<ModInfo> service = new ExecutorCompletionService<>(serviceInternal);
 
             // Register update checks with thread executor
-            for (final VersionInfo version : localVersions)
+            for (final VersionFile version : localVersions)
             {
                 service.submit(new SubTask(version));
             }
@@ -211,9 +211,9 @@ final class VersionChecker
 
         private static class SubTask implements Callable<ModInfo>
         {
-            final VersionInfo version;
+            final VersionFile version;
 
-            private SubTask(VersionInfo version)
+            private SubTask(VersionFile version)
             {
                 this.version = version;
             }

@@ -7,6 +7,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -18,14 +19,16 @@ import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.InteractionDialogPlugin;
 import com.fs.starfarer.api.campaign.OptionPanelAPI;
 import com.fs.starfarer.api.campaign.TextPanelAPI;
+import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.EngagementResultAPI;
 import org.apache.log4j.Level;
 import org.lazywizard.versionchecker.UpdateInfo.ModInfo;
-import org.lazywizard.versionchecker.UpdateInfo.VersionInfo;
+import org.lazywizard.versionchecker.UpdateInfo.VersionFile;
 import org.lwjgl.input.Keyboard;
 
 final class UpdateNotificationScript implements EveryFrameScript
 {
+    private float timeUntilWarn = 1f;
     private boolean isUpdateCheckDone = false, hasWarned = false;
     private transient Future<UpdateInfo> futureUpdateInfo;
     private transient UpdateInfo updateInfo;
@@ -69,7 +72,8 @@ final class UpdateNotificationScript implements EveryFrameScript
                     + (modsWithUpdates > 1 ? " mods:" : " mod:"), Color.YELLOW);
             for (ModInfo tmp : hasUpdate)
             {
-                ui.addMessage(" - " + tmp, Color.YELLOW);
+                ui.addMessage(" - " + tmp.getName() + " ("
+                        + tmp.getVersionString() + ")", Color.YELLOW);
             }
         }
 
@@ -80,11 +84,11 @@ final class UpdateNotificationScript implements EveryFrameScript
                     + (modsThatFailedUpdateCheck > 1 ? " mods:" : " mod:"), Color.RED);
             for (ModInfo tmp : failedCheck)
             {
-                ui.addMessage(" - " + tmp.getLocalVersion().getName(), Color.RED);
+                ui.addMessage(" - " + tmp.getName(), Color.RED);
             }
         }
 
-        ui.addMessage("Press \"V\" for more update information.", Color.CYAN);
+        ui.addMessage("Press \"V\" for detailed update information.", Color.CYAN);
     }
 
     @Override
@@ -92,7 +96,7 @@ final class UpdateNotificationScript implements EveryFrameScript
     {
         // Don't do anything while in a menu/dialog
         CampaignUIAPI ui = Global.getSector().getCampaignUI();
-        if (ui.isShowingDialog())
+        if (Global.getSector().isInNewGameAdvance() || ui.isShowingDialog())
         {
             return;
         }
@@ -125,17 +129,22 @@ final class UpdateNotificationScript implements EveryFrameScript
         }
 
         // On first game load, warn about any updates available
-        if (!hasWarned)
+        if (!hasWarned && timeUntilWarn < 1f)
         {
             warnUpdates(ui);
             hasWarned = true;
+        }
+        else
+        {
+            timeUntilWarn -= amount;
         }
 
         // User can press a key to summon a detailed update report
         // TODO: Make this configurable
         if (Keyboard.isKeyDown(Keyboard.KEY_V))
         {
-            ui.showInteractionDialog(new UpdateNotificationDialog(updateInfo), null);
+            ui.showInteractionDialog(new UpdateNotificationDialog(updateInfo),
+                    Global.getSector().getPlayerFleet());
         }
     }
 
@@ -201,12 +210,12 @@ final class UpdateNotificationScript implements EveryFrameScript
         private void goToMod(ModInfo mod)
         {
             options.clearOptions();
-            VersionInfo local = mod.getLocalVersion();
+            VersionFile local = mod.getLocalVersion();
 
             if (mod.isUpdateAvailable())
             {
-                text.addParagraph("Update available for "
-                        + mod, Color.YELLOW);
+                text.addParagraph("Update available for " + mod.getName()
+                        + ": " + mod.getVersionString(), Color.YELLOW);
             }
             else
             {
@@ -214,8 +223,9 @@ final class UpdateNotificationScript implements EveryFrameScript
                         + local.getVersion() + ")", Color.GREEN);
             }
 
+            String URL = local.getThreadURL();
             options.addOption("Go to forum thread", local);
-            options.setEnabled(local, local.getThreadURL() != null);
+            options.setEnabled(local, URL != null);
 
             dialog.setPromptText("Select an option:");
             options.addOption("Back", Menu.RETURN);
@@ -228,23 +238,41 @@ final class UpdateNotificationScript implements EveryFrameScript
             switch (menu)
             {
                 case MAIN_MENU:
+                    text.clear();
                     String numUpToDate = Integer.toString(hasNoUpdate.size());
                     String numHasUpdate = Integer.toString(hasUpdate.size());
                     String numFailed = Integer.toString(failedCheck.size());
 
                     text.addParagraph("There are " + numUpToDate
-                            + " up-to-date mods.");
+                            + " up-to-date mods");
                     text.highlightInLastPara(Color.GREEN, numUpToDate);
+                    for (ModInfo info : hasNoUpdate)
+                    {
+                        text.addParagraph(" - " + info.getName() + " ("
+                                + info.getVersionString() + ")");
+                        text.highlightInLastPara(Color.GREEN, info.getName());
+                    }
 
                     text.addParagraph("There are " + numHasUpdate
-                            + " mods with updates available.");
+                            + " mods with updates available");
                     text.highlightInLastPara((hasUpdate.size() > 0
                             ? Color.YELLOW : Color.GREEN), numHasUpdate);
+                    for (ModInfo info : hasUpdate)
+                    {
+                        text.addParagraph(" - " + info.getName() + " ("
+                                + info.getVersionString() + ")");
+                        text.highlightInLastPara(Color.YELLOW, info.getName());
+                    }
 
                     text.addParagraph("There are " + numFailed
-                            + " mods that failed their update check.");
+                            + " mods that failed their update check");
                     text.highlightInLastPara((failedCheck.size() > 0
                             ? Color.RED : Color.GREEN), numFailed);
+                    for (ModInfo info : failedCheck)
+                    {
+                        text.addParagraph(" - " + info.getName() + ")");
+                        text.highlightInLastPara(Color.RED, info.getName());
+                    }
 
                     dialog.setPromptText("Select an option:");
                     options.addOption("List mods with updates", Menu.LIST_UPDATES);
@@ -313,11 +341,11 @@ final class UpdateNotificationScript implements EveryFrameScript
                 goToMod((ModInfo) optionData);
             }
             // Option was version data? Launch that mod's forum thread
-            else if (optionData instanceof VersionInfo)
+            else if (optionData instanceof VersionFile)
             {
                 try
                 {
-                    VersionInfo info = (VersionInfo) optionData;
+                    VersionFile info = (VersionFile) optionData;
                     text.addParagraph("Launching web browser...");
                     options.setEnabled(info, false);
                     Desktop.getDesktop().browse(new URI(info.getThreadURL()));
@@ -349,6 +377,12 @@ final class UpdateNotificationScript implements EveryFrameScript
 
         @Override
         public Object getContext()
+        {
+            return null;
+        }
+
+        @Override
+        public Map<String, MemoryAPI> getMemoryMap()
         {
             return null;
         }
