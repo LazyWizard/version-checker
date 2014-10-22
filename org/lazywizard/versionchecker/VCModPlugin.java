@@ -8,13 +8,13 @@ import org.apache.log4j.Level;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.lazywizard.versionchecker.UpdateInfo.VersionInfo;
+import org.lazywizard.versionchecker.UpdateInfo.VersionFile;
 
 public final class VCModPlugin extends BaseModPlugin
 {
     private static final String SETTINGS_FILE = "data/config/version/version_checker.json";
     private static final String CSV_PATH = "data/config/version/version_files.csv";
-    static UpdateNotificationScript script = null;
+    private static UpdateNotificationScript script = null;
 
     @Override
     public void onApplicationLoad() throws Exception
@@ -24,7 +24,7 @@ public final class VCModPlugin extends BaseModPlugin
         Global.getLogger(VersionChecker.class).setLevel(
                 Level.toLevel(settings.optString("logLevel", "WARN")));
 
-        final List<VersionInfo> versionFiles = new ArrayList<>();
+        final List<VersionFile> versionFiles = new ArrayList<>();
         final JSONArray csv = Global.getSettings().getMergedSpreadsheetDataForMod(
                 "version file", CSV_PATH, "lw_version_checker");
 
@@ -38,7 +38,7 @@ public final class VCModPlugin extends BaseModPlugin
 
             try
             {
-                versionFiles.add(new VersionInfo(
+                versionFiles.add(new VersionFile(
                         Global.getSettings().loadJSON(versionFile), false));
             }
             catch (JSONException ex)

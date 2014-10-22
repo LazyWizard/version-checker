@@ -28,7 +28,7 @@
     # The current patch number
     # Notation is major.minor.patch, trailing zeros are ignored
     # This means version 2.1.0 shows up as v2.1, version 4.0.0 as v4, etc
-    # If you use major.minor notation you can just leave patch at 0
+    # If you use major.minor notation you can just leave patch as 0
     "modVersion":
     {
         "major":1,
