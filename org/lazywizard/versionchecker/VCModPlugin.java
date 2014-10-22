@@ -15,11 +15,13 @@ public final class VCModPlugin extends BaseModPlugin
     private static final String SETTINGS_FILE = "data/config/version/version_checker.json";
     private static final String CSV_PATH = "data/config/version/version_files.csv";
     private static UpdateNotificationScript script = null;
+    static int notificationKey;
 
     @Override
     public void onApplicationLoad() throws Exception
     {
         final JSONObject settings = Global.getSettings().loadJSON(SETTINGS_FILE);
+        notificationKey = settings.optInt("summonUpdateNotificationKey", 47);
         VersionChecker.setMaxThreads(settings.optInt("maxUpdateThreads", 6));
         Global.getLogger(VersionChecker.class).setLevel(
                 Level.toLevel(settings.optString("logLevel", "WARN")));
