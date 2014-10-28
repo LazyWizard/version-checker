@@ -194,7 +194,9 @@ final class UpdateNotificationScript implements EveryFrameScript
             for (int x = offset; x < max; x++)
             {
                 ModInfo mod = currentList.get(x);
-                options.addOption((x + 1) + ": " + mod.getLocalVersion().getName(), mod);
+                VersionFile local = mod.getLocalVersion();
+                options.addOption((x + 1) + ": " + local.getName(), local);
+                options.setEnabled(local, local.getThreadURL() != null);
             }
 
             // Support for multiple pages of options
@@ -207,7 +209,7 @@ final class UpdateNotificationScript implements EveryFrameScript
                 options.addOption("Next page", Menu.NEXT_PAGE);
             }
 
-            dialog.setPromptText("Select a mod for detailed version information:");
+            dialog.setPromptText("Select a mod to go to its forum thread:");
             options.addOption("Main menu", Menu.MAIN_MENU);
         }
 
