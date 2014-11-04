@@ -58,23 +58,17 @@ public final class VCModPlugin extends BaseModPlugin
     }
 
     @Override
+    public void onNewGameAfterTimePass()
+    {
+        onGameLoad();
+    }
+
+    @Override
     public void onGameLoad()
     {
         if (script != null && !script.isDone())
         {
-            Global.getSector().addScript(script);
+            Global.getSector().addTransientScript(script);
         }
-    }
-
-    @Override
-    public void beforeGameSave()
-    {
-        Global.getSector().removeScriptsOfClass(UpdateNotificationScript.class);
-    }
-
-    @Override
-    public void afterGameSave()
-    {
-        onGameLoad();
     }
 }
