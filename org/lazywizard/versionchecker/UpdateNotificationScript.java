@@ -28,7 +28,7 @@ import org.lwjgl.input.Keyboard;
 
 final class UpdateNotificationScript implements EveryFrameScript
 {
-    private float timeUntilWarn = 1.5f; // Ensures text appears
+    private float timeUntilWarn = .75f; // Ensures text appears
     private boolean isUpdateCheckDone = false, hasWarned = false;
     private transient Future<UpdateInfo> futureUpdateInfo;
     private transient UpdateInfo updateInfo;
@@ -134,7 +134,7 @@ final class UpdateNotificationScript implements EveryFrameScript
         }
 
         // On first game load, warn about any updates available
-        if (!hasWarned && timeUntilWarn < 1f)
+        if (!hasWarned && timeUntilWarn <= 0f)
         {
             warnUpdates(ui);
             hasWarned = true;
@@ -276,7 +276,7 @@ final class UpdateNotificationScript implements EveryFrameScript
                             ? Color.RED : Color.GREEN), numFailed);
                     for (ModInfo info : failedCheck)
                     {
-                        text.addParagraph(" - " + info.getName() + ")");
+                        text.addParagraph(" - " + info.getName());
                         text.highlightInLastPara(Color.RED, info.getName());
                     }
 

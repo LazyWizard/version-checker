@@ -58,12 +58,6 @@ public final class VCModPlugin extends BaseModPlugin
     }
 
     @Override
-    public void onNewGameAfterTimePass()
-    {
-        onGameLoad();
-    }
-
-    @Override
     public void onGameLoad()
     {
         if (script != null && !script.isDone())
