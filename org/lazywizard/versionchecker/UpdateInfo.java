@@ -56,13 +56,11 @@ final class UpdateInfo
     static final class ModInfo implements Comparable<ModInfo>
     {
         private final VersionFile localVersion, remoteVersion;
-        private final boolean failedUpdate;
 
         ModInfo(VersionFile localVersion, VersionFile remoteVersion)
         {
             this.localVersion = localVersion;
             this.remoteVersion = remoteVersion;
-            failedUpdate = (remoteVersion == null);
         }
 
         String getName()
@@ -82,7 +80,7 @@ final class UpdateInfo
 
         boolean failedUpdateCheck()
         {
-            return failedUpdate;
+            return (remoteVersion == null);
         }
 
         boolean isUpdateAvailable()
@@ -92,7 +90,7 @@ final class UpdateInfo
 
         public String getVersionString()
         {
-            if (failedUpdate)
+            if (remoteVersion == null)
             {
                 return localVersion.getVersion();
             }
