@@ -70,7 +70,7 @@ final class UpdateNotificationScript implements EveryFrameScript
         if (hasUpdate.size() > 0)
         {
             ui.addMessage("Found updates for " + modsWithUpdates
-                    + (hasUpdate.size() > 1 ? " mods:" : " mod:"),
+                    + (hasUpdate.size() > 1 ? " mods." : " mod."),
                     modsWithUpdates, Color.YELLOW);
             /*for (ModInfo tmp : hasUpdate)
              {
@@ -83,7 +83,7 @@ final class UpdateNotificationScript implements EveryFrameScript
         if (failedCheck.size() > 0)
         {
             ui.addMessage("Update check failed for " + modsThatFailedUpdateCheck
-                    + (failedCheck.size() > 1 ? " mods:" : " mod:"),
+                    + (failedCheck.size() > 1 ? " mods." : " mod."),
                     modsThatFailedUpdateCheck, Color.RED);
             /*for (ModInfo tmp : failedCheck)
              {

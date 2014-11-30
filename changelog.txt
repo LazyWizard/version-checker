@@ -1,3 +1,8 @@
+ Version 1.2b (November 30, 2014)
+==================================
+Can launch directly to a forum thread from the mod list (removes an extra step)
+Fixed a typo when listing mods that failed their update check
+
  Version 1.2 (October 21, 2014)
 ================================
 Can summon a dialog in campaign to display update information (default key: V)
