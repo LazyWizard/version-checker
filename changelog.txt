@@ -1,3 +1,10 @@
+ Version 1.3 (December 13, 2014)
+=================================
+Mod now warns the player if installed incorrectly instead of crashing the game
+Added keyboard shortcuts to mod list in campaign pop-up
+Display current page number when multiple pages of mods are present
+Show local version info for failed update checks so you can check forum manually
+
  Version 1.2b (November 30, 2014)
 ==================================
 Can launch directly to a forum thread from the mod list (removes an extra step)

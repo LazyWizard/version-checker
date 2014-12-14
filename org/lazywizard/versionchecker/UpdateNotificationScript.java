@@ -72,11 +72,6 @@ final class UpdateNotificationScript implements EveryFrameScript
             ui.addMessage("Found updates for " + modsWithUpdates
                     + (hasUpdate.size() > 1 ? " mods." : " mod."),
                     modsWithUpdates, Color.YELLOW);
-            /*for (ModInfo tmp : hasUpdate)
-             {
-             ui.addMessage(" - " + tmp.getName() + " ("
-             + tmp.getVersionString() + ")", Color.YELLOW);
-             }*/
         }
 
         // Display number of mods that failed the update check
@@ -85,10 +80,6 @@ final class UpdateNotificationScript implements EveryFrameScript
             ui.addMessage("Update check failed for " + modsThatFailedUpdateCheck
                     + (failedCheck.size() > 1 ? " mods." : " mod."),
                     modsThatFailedUpdateCheck, Color.RED);
-            /*for (ModInfo tmp : failedCheck)
-             {
-             ui.addMessage(" - " + tmp.getName(), Color.RED);
-             }*/
         }
 
         String keyName = Keyboard.getKeyName(VCModPlugin.notificationKey);
@@ -160,7 +151,7 @@ final class UpdateNotificationScript implements EveryFrameScript
         private TextPanelAPI text;
         private OptionPanelAPI options;
         private List<ModInfo> currentList;
-        private int currentPage = 0;
+        private int currentPage = 1;
 
         private enum Menu
         {
@@ -189,52 +180,33 @@ final class UpdateNotificationScript implements EveryFrameScript
         private void generateModMenu()
         {
             // Show as many mods as can fit into one page of options
-            int offset = currentPage * ENTRIES_PER_PAGE,
-                    max = Math.min(offset + ENTRIES_PER_PAGE, currentList.size());
-            for (int x = offset; x < max; x++)
+            final int offset = (currentPage - 1) * ENTRIES_PER_PAGE,
+                    max = Math.min(offset + ENTRIES_PER_PAGE, currentList.size()),
+                    numPages = 1 + (int) ((currentList.size() - 1) / ENTRIES_PER_PAGE);
+            for (int x = offset, y = 1; x < max; x++, y++)
             {
                 ModInfo mod = currentList.get(x);
                 VersionFile local = mod.getLocalVersion();
-                options.addOption((x + 1) + ": " + local.getName(), local);
+                options.addOption(y + ": " + local.getName(), local);
                 options.setEnabled(local, local.getThreadURL() != null);
+                options.setShortcut(local, Keyboard.getKeyIndex(Integer.toString(y)),
+                        false, false, false, false);
             }
 
             // Support for multiple pages of options
-            if (currentPage > 0)
+            if (currentPage > 1)
             {
                 options.addOption("Previous page", Menu.PREVIOUS_PAGE);
             }
-            if (max < currentList.size())
+            if (currentPage < numPages)
             {
                 options.addOption("Next page", Menu.NEXT_PAGE);
             }
 
-            dialog.setPromptText("Select a mod to go to its forum thread:");
+            // Show page number in prompt if multiple pages are present
+            dialog.setPromptText("Select a mod to go to its forum thread"
+                    + (numPages > 1 ? " (page " + currentPage + "/" + numPages + ")" : "") + ":");
             options.addOption("Main menu", Menu.MAIN_MENU);
-        }
-
-        private void goToMod(ModInfo mod)
-        {
-            options.clearOptions();
-            VersionFile local = mod.getLocalVersion();
-
-            if (mod.isUpdateAvailable())
-            {
-                text.addParagraph("Update available for " + mod.getName()
-                        + ": " + mod.getVersionString(), Color.YELLOW);
-            }
-            else
-            {
-                text.addParagraph(local.getName() + " is up-to-date ("
-                        + local.getVersion() + ")", Color.GREEN);
-            }
-
-            String URL = local.getThreadURL();
-            options.addOption("Go to forum thread", local);
-            options.setEnabled(local, URL != null);
-
-            dialog.setPromptText("Select an option:");
-            options.addOption("Back", Menu.RETURN);
         }
 
         private void goToMenu(Menu menu)
@@ -276,7 +248,8 @@ final class UpdateNotificationScript implements EveryFrameScript
                             ? Color.RED : Color.GREEN), numFailed);
                     for (ModInfo info : failedCheck)
                     {
-                        text.addParagraph(" - " + info.getName());
+                        text.addParagraph(" - " + info.getName() + " ("
+                                + info.getVersionString() + ")");
                         text.highlightInLastPara(Color.RED, info.getName());
                     }
 
@@ -291,17 +264,17 @@ final class UpdateNotificationScript implements EveryFrameScript
                     break;
                 case LIST_UPDATES:
                     currentList = hasUpdate;
-                    currentPage = 0;
+                    currentPage = 1;
                     generateModMenu();
                     break;
                 case LIST_NO_UPDATES:
                     currentList = hasNoUpdate;
-                    currentPage = 0;
+                    currentPage = 1;
                     generateModMenu();
                     break;
                 case LIST_FAILED:
                     currentList = failedCheck;
-                    currentPage = 0;
+                    currentPage = 1;
                     generateModMenu();
                     break;
                 case PREVIOUS_PAGE:
@@ -342,18 +315,13 @@ final class UpdateNotificationScript implements EveryFrameScript
             {
                 goToMenu((Menu) optionData);
             }
-            // Option was a mod? Go to mod details page
-            else if (optionData instanceof ModInfo)
-            {
-                goToMod((ModInfo) optionData);
-            }
             // Option was version data? Launch that mod's forum thread
             else if (optionData instanceof VersionFile)
             {
                 try
                 {
                     VersionFile info = (VersionFile) optionData;
-                    text.addParagraph("Launching web browser...");
+                    text.addParagraph("Opening " + info.getName() + " forum thread...");
                     options.setEnabled(info, false);
                     Desktop.getDesktop().browse(new URI(info.getThreadURL()));
                 }
