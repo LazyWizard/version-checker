@@ -14,6 +14,7 @@ final class UpdateInfo
     private final List<ModInfo> hasNoUpdate = new ArrayList<>();
     private final List<ModInfo> failedCheck = new ArrayList<>();
     private int numModsChecked = 0;
+    String ssUpdate = null;
 
     void addFailed(ModInfo mod)
     {

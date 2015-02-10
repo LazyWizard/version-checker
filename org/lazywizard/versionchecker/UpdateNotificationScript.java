@@ -25,6 +25,7 @@ import org.apache.log4j.Level;
 import org.lazywizard.versionchecker.UpdateInfo.ModInfo;
 import org.lazywizard.versionchecker.UpdateInfo.VersionFile;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.opengl.Display;
 
 final class UpdateNotificationScript implements EveryFrameScript
 {
@@ -80,6 +81,17 @@ final class UpdateNotificationScript implements EveryFrameScript
             ui.addMessage("Update check failed for " + modsThatFailedUpdateCheck
                     + (failedCheck.size() > 1 ? " mods." : " mod."),
                     modsThatFailedUpdateCheck, Color.RED);
+        }
+
+        // Warn if a Starsector update is available
+        if (updateInfo.ssUpdate != null)
+        {
+            ui.addMessage("There is a game update available: " + updateInfo.ssUpdate,
+                    Color.YELLOW, updateInfo.ssUpdate, Color.CYAN);
+        }
+        else
+        {
+            ui.addMessage("Starsector is up to date.", Color.GREEN);
         }
 
         String keyName = Keyboard.getKeyName(VCModPlugin.notificationKey);
@@ -145,7 +157,10 @@ final class UpdateNotificationScript implements EveryFrameScript
 
     private static class UpdateNotificationDialog implements InteractionDialogPlugin
     {
+        private static final String ANNOUNCEMENT_BOARD
+                = "http://fractalsoftworks.com/forum/index.php?board=1.0";
         private static final int ENTRIES_PER_PAGE = 5;
+        private final String ssUpdate;
         private final List<ModInfo> hasUpdate, hasNoUpdate, failedCheck;
         private InteractionDialogAPI dialog;
         private TextPanelAPI text;
@@ -156,6 +171,7 @@ final class UpdateNotificationScript implements EveryFrameScript
         private enum Menu
         {
             MAIN_MENU,
+            UPDATE_VANILLA,
             LIST_UPDATES,
             LIST_NO_UPDATES,
             LIST_FAILED,
@@ -170,6 +186,7 @@ final class UpdateNotificationScript implements EveryFrameScript
             hasUpdate = updateInfo.getHasUpdate();
             hasNoUpdate = updateInfo.getHasNoUpdate();
             failedCheck = updateInfo.getFailed();
+            ssUpdate = updateInfo.ssUpdate;
 
             // Sort by mod name
             Collections.sort(hasUpdate);
@@ -223,13 +240,15 @@ final class UpdateNotificationScript implements EveryFrameScript
             {
                 case MAIN_MENU:
                     text.clear();
-                    String numUpToDate = Integer.toString(hasNoUpdate.size());
-                    String numHasUpdate = Integer.toString(hasUpdate.size());
-                    String numFailed = Integer.toString(failedCheck.size());
+                    final int numUpToDate = hasNoUpdate.size(),
+                     numHasUpdate = hasUpdate.size(),
+                     numFailed = failedCheck.size();
 
-                    text.addParagraph("There are " + numUpToDate
-                            + " up-to-date mods");
-                    text.highlightInLastPara(Color.GREEN, numUpToDate);
+                    text.addParagraph((numUpToDate == 1)
+                            ? "There is one up-to-date mod"
+                            : "There are " + numUpToDate + " up-to-date mods");
+                    text.highlightInLastPara(Color.GREEN,
+                            Integer.toString(numUpToDate));
                     for (ModInfo info : hasNoUpdate)
                     {
                         text.addParagraph(" - " + info.getName() + " ("
@@ -237,10 +256,11 @@ final class UpdateNotificationScript implements EveryFrameScript
                         text.highlightInLastPara(Color.GREEN, info.getName());
                     }
 
-                    text.addParagraph("There are " + numHasUpdate
-                            + " mods with updates available");
-                    text.highlightInLastPara((hasUpdate.size() > 0
-                            ? Color.YELLOW : Color.GREEN), numHasUpdate);
+                    text.addParagraph((numHasUpdate == 1)
+                            ? "There is one mod with an update available"
+                            : "There are " + numHasUpdate + " mods with updates available");
+                    text.highlightInLastPara((numHasUpdate > 0 ? Color.YELLOW
+                            : Color.GREEN), Integer.toString(numHasUpdate));
                     for (ModInfo info : hasUpdate)
                     {
                         text.addParagraph(" - " + info.getName() + " ("
@@ -248,10 +268,11 @@ final class UpdateNotificationScript implements EveryFrameScript
                         text.highlightInLastPara(Color.YELLOW, info.getName());
                     }
 
-                    text.addParagraph("There are " + numFailed
-                            + " mods that failed their update check");
-                    text.highlightInLastPara((failedCheck.size() > 0
-                            ? Color.RED : Color.GREEN), numFailed);
+                    text.addParagraph((numFailed == 1)
+                            ? "There is one mod that failed its update check"
+                            : "There are " + numFailed + " mods that failed their update checks");
+                    text.highlightInLastPara((numFailed > 0 ? Color.RED
+                            : Color.GREEN), Integer.toString(numFailed));
                     for (ModInfo info : failedCheck)
                     {
                         text.addParagraph(" - " + info.getName() + " ("
@@ -272,9 +293,37 @@ final class UpdateNotificationScript implements EveryFrameScript
                     options.setEnabled(Menu.LIST_FAILED, !failedCheck.isEmpty());
                     options.setShortcut(Menu.LIST_FAILED, Keyboard.KEY_3,
                             false, false, false, false);
+
+                    // Notify of game update if available
+                    if (ssUpdate != null)
+                    {
+                        text.addParagraph("There is a game update available:\n - " + ssUpdate);
+                        text.highlightInLastPara(Color.YELLOW, ssUpdate);
+
+                        options.addOption("4: Download " + ssUpdate, Menu.UPDATE_VANILLA);
+                        options.setShortcut(Menu.UPDATE_VANILLA, Keyboard.KEY_4,
+                                false, false, false, false);
+                    }
+
                     options.addOption("Exit", Menu.EXIT);
                     options.setShortcut(Menu.EXIT, Keyboard.KEY_ESCAPE,
                             false, false, false, true);
+                    break;
+                case UPDATE_VANILLA:
+                    goToMenu(Menu.MAIN_MENU);
+                    text.addParagraph("Opening update announcement subforum...");
+                    options.setEnabled(Menu.UPDATE_VANILLA, false);
+                    try
+                    {
+                        Desktop.getDesktop().browse(new URI(ANNOUNCEMENT_BOARD));
+                    }
+                    catch (IOException | URISyntaxException ex)
+                    {
+                        Global.getLogger(VersionChecker.class).log(Level.ERROR,
+                                "Failed to launch browser:", ex);
+                        text.addParagraph("Failed to launch browser: "
+                                + ex.getMessage(), Color.RED);
+                    }
                     break;
                 case LIST_UPDATES:
                     currentList = hasUpdate;
@@ -315,7 +364,7 @@ final class UpdateNotificationScript implements EveryFrameScript
             this.options = dialog.getOptionPanel();
             this.text = dialog.getTextPanel();
 
-            dialog.setTextWidth(dialog.getTextWidth() * 1.5f);
+            dialog.setTextWidth(Display.getWidth() * .9f);
             goToMenu(Menu.MAIN_MENU);
         }
 

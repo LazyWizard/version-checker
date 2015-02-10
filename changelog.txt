@@ -1,5 +1,6 @@
- Version 1.3b (February xx, 2015)
+ Version 1.4 (February xx, 2015)
 ==================================
+Version Checker now also checks if you have the latest Starsector release
 Added missing keyboard shortcuts:
  - Number shortcuts added for menus that lacked them
  - Right+left arrows added as shortcuts for next/previous page
