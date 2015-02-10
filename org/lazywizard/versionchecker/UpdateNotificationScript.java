@@ -239,7 +239,7 @@ final class UpdateNotificationScript implements EveryFrameScript
                      numFailed = failedCheck.size();
 
                     text.addParagraph((numUpToDate == 1)
-                            ? "There is one up-to-date mod"
+                            ? "There is 1 up-to-date mod"
                             : "There are " + numUpToDate + " up-to-date mods");
                     text.highlightInLastPara(Color.GREEN,
                             Integer.toString(numUpToDate));
@@ -251,7 +251,7 @@ final class UpdateNotificationScript implements EveryFrameScript
                     }
 
                     text.addParagraph((numHasUpdate == 1)
-                            ? "There is one mod with an update available"
+                            ? "There is 1 mod with an update available"
                             : "There are " + numHasUpdate + " mods with updates available");
                     text.highlightInLastPara((numHasUpdate > 0 ? Color.YELLOW
                             : Color.GREEN), Integer.toString(numHasUpdate));
@@ -263,7 +263,7 @@ final class UpdateNotificationScript implements EveryFrameScript
                     }
 
                     text.addParagraph((numFailed == 1)
-                            ? "There is one mod that failed its update check"
+                            ? "There is 1 mod that failed its update check"
                             : "There are " + numFailed + " mods that failed their update checks");
                     text.highlightInLastPara((numFailed > 0 ? Color.RED
                             : Color.GREEN), Integer.toString(numFailed));
