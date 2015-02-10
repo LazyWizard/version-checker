@@ -27,7 +27,9 @@ import org.lwjgl.opengl.Display;
 final class VersionChecker
 {
     private static final String VANILLA_UPDATE_URL
-            = "https://dl.dropboxusercontent.com/u/32722116/Version%20Files/vanilla.txt";
+            = "https://bitbucket.org/LazyWizard/version-checker/downloads/vanilla.txt";
+            //= "https://bitbucket.org/LazyWizard/version-checker/raw/tip/vanilla.txt";
+            //= "https://dl.dropboxusercontent.com/u/32722116/Version%20Files/vanilla.txt";
     private static int MAX_THREADS = 12;
 
     static void setMaxThreads(int maxThreads)
@@ -51,7 +53,7 @@ final class VersionChecker
             // Strip out end-line comments
             if (str.contains("#"))
             {
-                result.append(str.substring(0, str.lastIndexOf('#')));
+                result.append(str.substring(0, str.indexOf('#')));
             }
             else
             {

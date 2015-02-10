@@ -1,6 +1,7 @@
  Version 1.4 (February xx, 2015)
 ==================================
 Version Checker now also checks if you are running the latest Starsector release
+Fixed parsing of remote JSON files with multiple #'s in a single line
 Added "checkStarsectorVersion" to data/config/version/version_checker.json
 Added missing keyboard shortcuts:
  - Number shortcuts added for menus that lacked them
