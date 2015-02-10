@@ -22,9 +22,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.lazywizard.versionchecker.UpdateInfo.ModInfo;
 import org.lazywizard.versionchecker.UpdateInfo.VersionFile;
+import org.lwjgl.opengl.Display;
 
 final class VersionChecker
 {
+    private static final String VANILLA_UPDATE_URL
+            = "https://dl.dropboxusercontent.com/u/32722116/Version%20Files/vanilla.txt";
     private static int MAX_THREADS = 12;
 
     static void setMaxThreads(int maxThreads)
@@ -97,7 +100,7 @@ final class VersionChecker
         catch (IOException ex)
         {
             Global.getLogger(VersionChecker.class).log(Level.ERROR,
-                    "Failed to load master version file at URL \""
+                    "Failed to load master version file from URL \""
                     + versionFileURL + "\"", ex);
             return null;
         }
@@ -106,6 +109,33 @@ final class VersionChecker
             Global.getLogger(VersionChecker.class).log(Level.ERROR,
                     "Malformed JSON in remote version file at URL \""
                     + versionFileURL + "\"", ex);
+            return null;
+        }
+    }
+
+    private static String getLatestSSVersion()
+    {
+        Global.getLogger(VersionChecker.class).log(Level.INFO,
+                "Loading starsector update info from remote URL " + VANILLA_UPDATE_URL);
+
+        // Get latest Starsector version from remote URL
+        try (InputStream stream = new URL(VANILLA_UPDATE_URL).openStream();
+                Scanner scanner = new Scanner(stream, "UTF-8").useDelimiter("\\A"))
+        {
+            return scanner.next();
+
+        }
+        catch (MalformedURLException ex)
+        {
+            Global.getLogger(VersionChecker.class).log(Level.ERROR,
+                    "Invalid vanilla update URL \"" + VANILLA_UPDATE_URL + "\"", ex);
+            return null;
+        }
+        catch (IOException ex)
+        {
+            Global.getLogger(VersionChecker.class).log(Level.ERROR,
+                    "Failed to load vanilla update data from URL \""
+                    + VANILLA_UPDATE_URL + "\"", ex);
             return null;
         }
     }
@@ -175,6 +205,13 @@ final class VersionChecker
             // Check for updates in separate threads for faster execution
             CompletionService<ModInfo> service = createCompletionService();
             final UpdateInfo results = new UpdateInfo();
+
+            // Poll for SS update, can block if site is down
+            final String vanillaVersion = getLatestSSVersion(); // Throws esceptions
+            if (vanillaVersion != null && !vanillaVersion.equalsIgnoreCase(Display.getTitle()))
+            {
+                results.ssUpdate = vanillaVersion;
+            }
 
             // Poll for results from the other threads until all have finished
             int modsToCheck = localVersions.size();
