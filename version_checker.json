@@ -4,6 +4,9 @@
     # http://legacy.lwjgl.org/javadoc/constant-values.html#org.lwjgl.input.Keyboard.KEY_0
     "summonUpdateNotificationKey":47, # Default: 47 (V)
 
+    # Whether to check if Starsector itself is up to date
+    "checkStarsectorVersion":true, # Default: true
+
     # The maximum number of separate threads to use when checking for updates
     "maxUpdateThreads":6,
 

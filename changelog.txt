@@ -1,10 +1,12 @@
  Version 1.4 (February xx, 2015)
 ==================================
-Version Checker now also checks if you have the latest Starsector release
+Version Checker now also checks if you are running the latest Starsector release
+Added "checkStarsectorVersion" to data/config/version/version_checker.json
 Added missing keyboard shortcuts:
  - Number shortcuts added for menus that lacked them
  - Right+left arrows added as shortcuts for next/previous page
  - Escape to go back a menu/leave update notification
+Minor text polish (proper verbs and pluralization)
 
  Version 1.3 (December 13, 2014)
 =================================
