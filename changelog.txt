@@ -3,10 +3,7 @@
 Version Checker now also checks if you are running the latest Starsector release
 Fixed parsing of remote JSON files with multiple #'s in a single line
 Added "checkStarsectorVersion" to data/config/version/version_checker.json
-Added missing keyboard shortcuts:
- - Number shortcuts added for menus that lacked them
- - Right+left arrows added as shortcuts for next/previous page
- - Escape to go back a menu/leave update notification
+Fixed broken menus in Starsector 0.65.2a
 Minor text polish (proper verbs and pluralization)
 
  Version 1.3 (December 13, 2014)
