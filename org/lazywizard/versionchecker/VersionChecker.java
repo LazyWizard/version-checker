@@ -28,8 +28,6 @@ final class VersionChecker
 {
     private static final String VANILLA_UPDATE_URL
             = "https://bitbucket.org/LazyWizard/version-checker/downloads/vanilla.txt";
-            //= "https://bitbucket.org/LazyWizard/version-checker/raw/tip/vanilla.txt";
-            //= "https://dl.dropboxusercontent.com/u/32722116/Version%20Files/vanilla.txt";
     private static int MAX_THREADS = 12;
 
     static void setMaxThreads(int maxThreads)
@@ -197,6 +195,12 @@ final class VersionChecker
             return service;
         }
 
+        private static boolean isUpdateAvailable(String oldVersion, String newVersion)
+        {
+            // TODO: Check if local version string is actually lower than remote
+            return (!newVersion.equalsIgnoreCase(oldVersion));
+        }
+
         @Override
         public UpdateInfo call() throws InterruptedException, ExecutionException
         {
@@ -209,6 +213,7 @@ final class VersionChecker
             final UpdateInfo results = new UpdateInfo();
 
             // Poll for SS update, can block if site is down
+            // TODO: Notify player if SS update check fails
             if (VCModPlugin.checkSSVersion)
             {
                 final String currentVanilla = Display.getTitle(),
@@ -216,7 +221,7 @@ final class VersionChecker
                 Global.getLogger(VersionChecker.class).log(Level.INFO,
                         "Local Starsector version is " + currentVanilla
                         + ", latest known is " + latestVanilla);
-                if (latestVanilla != null && !latestVanilla.equalsIgnoreCase(currentVanilla))
+                if (isUpdateAvailable(currentVanilla, latestVanilla))
                 {
                     Global.getLogger(VersionChecker.class).log(Level.INFO,
                             "Starsector update available");
