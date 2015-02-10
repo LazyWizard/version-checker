@@ -182,7 +182,7 @@ final class UpdateNotificationScript implements EveryFrameScript
             // Show as many mods as can fit into one page of options
             final int offset = (currentPage - 1) * ENTRIES_PER_PAGE,
                     max = Math.min(offset + ENTRIES_PER_PAGE, currentList.size()),
-                    numPages = 1 + (int) ((currentList.size() - 1) / ENTRIES_PER_PAGE);
+                    numPages = 1 + ((currentList.size() - 1) / ENTRIES_PER_PAGE);
             for (int x = offset, y = 1; x < max; x++, y++)
             {
                 ModInfo mod = currentList.get(x);
@@ -197,16 +197,22 @@ final class UpdateNotificationScript implements EveryFrameScript
             if (currentPage > 1)
             {
                 options.addOption("Previous page", Menu.PREVIOUS_PAGE);
+                options.setShortcut(Menu.PREVIOUS_PAGE, Keyboard.KEY_LEFT,
+                        false, false, false, true);
             }
             if (currentPage < numPages)
             {
                 options.addOption("Next page", Menu.NEXT_PAGE);
+                options.setShortcut(Menu.NEXT_PAGE, Keyboard.KEY_RIGHT,
+                        false, false, false, true);
             }
 
             // Show page number in prompt if multiple pages are present
             dialog.setPromptText("Select a mod to go to its forum thread"
                     + (numPages > 1 ? " (page " + currentPage + "/" + numPages + ")" : "") + ":");
             options.addOption("Main menu", Menu.MAIN_MENU);
+            options.setShortcut(Menu.MAIN_MENU, Keyboard.KEY_ESCAPE,
+                    false, false, false, true);
         }
 
         private void goToMenu(Menu menu)
@@ -253,14 +259,22 @@ final class UpdateNotificationScript implements EveryFrameScript
                         text.highlightInLastPara(Color.RED, info.getName());
                     }
 
-                    dialog.setPromptText("Select an option:");
-                    options.addOption("List mods with updates", Menu.LIST_UPDATES);
+                    dialog.setPromptText("Select a category for forum thread links:");
+                    options.addOption("1: List mods with updates", Menu.LIST_UPDATES);
                     options.setEnabled(Menu.LIST_UPDATES, !hasUpdate.isEmpty());
-                    options.addOption("List mods without updates", Menu.LIST_NO_UPDATES);
+                    options.setShortcut(Menu.LIST_UPDATES, Keyboard.KEY_1,
+                            false, false, false, false);
+                    options.addOption("2: List mods without updates", Menu.LIST_NO_UPDATES);
                     options.setEnabled(Menu.LIST_NO_UPDATES, !hasNoUpdate.isEmpty());
-                    options.addOption("List mods that failed update check", Menu.LIST_FAILED);
+                    options.setShortcut(Menu.LIST_NO_UPDATES, Keyboard.KEY_2,
+                            false, false, false, false);
+                    options.addOption("3: List mods that failed update check", Menu.LIST_FAILED);
                     options.setEnabled(Menu.LIST_FAILED, !failedCheck.isEmpty());
+                    options.setShortcut(Menu.LIST_FAILED, Keyboard.KEY_3,
+                            false, false, false, false);
                     options.addOption("Exit", Menu.EXIT);
+                    options.setShortcut(Menu.EXIT, Keyboard.KEY_ESCAPE,
+                            false, false, false, true);
                     break;
                 case LIST_UPDATES:
                     currentList = hasUpdate;

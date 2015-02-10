@@ -1,3 +1,10 @@
+ Version 1.3b (February xx, 2015)
+==================================
+Added missing keyboard shortcuts:
+ - Number shortcuts added for menus that lacked them
+ - Right+left arrows added as shortcuts for next/previous page
+ - Escape to go back a menu/leave update notification
+
  Version 1.3 (December 13, 2014)
 =================================
 Mod now warns the player if installed incorrectly instead of crashing the game
