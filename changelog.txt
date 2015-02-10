@@ -1,9 +1,9 @@
- Version 1.4 (February xx, 2015)
-==================================
+ Version 1.4 (February 10, 2015)
+=================================
 Version Checker now also checks if you are running the latest Starsector release
-Fixed parsing of remote JSON files with multiple #'s in a single line
 Added "checkStarsectorVersion" to data/config/version/version_checker.json
 Fixed broken menus in Starsector 0.65.2a
+Fixed parsing of remote JSON files with multiple #'s in a single line
 Minor text polish (proper verbs and pluralization)
 
  Version 1.3 (December 13, 2014)
