@@ -207,10 +207,19 @@ final class VersionChecker
             final UpdateInfo results = new UpdateInfo();
 
             // Poll for SS update, can block if site is down
-            final String vanillaVersion = getLatestSSVersion(); // Throws esceptions
-            if (vanillaVersion != null && !vanillaVersion.equalsIgnoreCase(Display.getTitle()))
+            if (VCModPlugin.checkSSVersion)
             {
-                results.ssUpdate = vanillaVersion;
+                final String currentVanilla = Display.getTitle(),
+                        latestVanilla = getLatestSSVersion(); // Throws esceptions
+                Global.getLogger(VersionChecker.class).log(Level.INFO,
+                        "Local Starsector version is " + currentVanilla
+                        + ", latest known is " + latestVanilla);
+                if (latestVanilla != null && !latestVanilla.equalsIgnoreCase(currentVanilla))
+                {
+                    Global.getLogger(VersionChecker.class).log(Level.INFO,
+                            "Starsector update available");
+                    results.ssUpdate = latestVanilla;
+                }
             }
 
             // Poll for results from the other threads until all have finished
@@ -241,8 +250,8 @@ final class VersionChecker
             final String elapsedTime = DecimalFormat.getNumberInstance().format(
                     (System.nanoTime() - startTime) / 1000000000.0d);
             Global.getLogger(VersionChecker.class).log(Level.INFO,
-                    "Checked " + results.getNumModsChecked() + " mods in "
-                    + elapsedTime + " seconds");
+                    "Checked game and " + results.getNumModsChecked()
+                    + " mods in " + elapsedTime + " seconds");
             return results;
         }
 

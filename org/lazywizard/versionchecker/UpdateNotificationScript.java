@@ -53,45 +53,39 @@ final class UpdateNotificationScript implements EveryFrameScript
 
     private void warnUpdates(CampaignUIAPI ui)
     {
-        final List<ModInfo> hasUpdate = updateInfo.getHasUpdate();
-        final List<ModInfo> hasNoUpdate = updateInfo.getHasNoUpdate();
-        final List<ModInfo> failedCheck = updateInfo.getFailed();
-        final String modsWithoutUpdates = Integer.toString(hasNoUpdate.size());
-        final String modsWithUpdates = Integer.toString(hasUpdate.size());
-        final String modsThatFailedUpdateCheck = Integer.toString(failedCheck.size());
+        final int modsWithoutUpdates = updateInfo.getHasNoUpdate().size(),
+                modsWithUpdates = updateInfo.getHasUpdate().size(),
+                modsThatFailedUpdateCheck = updateInfo.getFailed().size();
 
         // Display number of mods that are up-to-date
-        if (hasNoUpdate.size() > 0)
+        if (modsWithoutUpdates > 0)
         {
-            ui.addMessage(modsWithoutUpdates + " mods are up to date.",
-                    modsWithoutUpdates, Color.GREEN);
+            ui.addMessage(modsWithoutUpdates + (modsWithoutUpdates == 1
+                    ? " mod is " : " mods are") + " up to date.",
+                    Integer.toString(modsWithoutUpdates), Color.GREEN);
         }
 
         // Display number of mods with an update available
-        if (hasUpdate.size() > 0)
+        if (modsWithUpdates > 0)
         {
             ui.addMessage("Found updates for " + modsWithUpdates
-                    + (hasUpdate.size() > 1 ? " mods." : " mod."),
-                    modsWithUpdates, Color.YELLOW);
+                    + (modsWithUpdates == 1 ? " mod." : " mods."),
+                    Integer.toString(modsWithUpdates), Color.YELLOW);
         }
 
         // Display number of mods that failed the update check
-        if (failedCheck.size() > 0)
+        if (modsThatFailedUpdateCheck > 0)
         {
             ui.addMessage("Update check failed for " + modsThatFailedUpdateCheck
-                    + (failedCheck.size() > 1 ? " mods." : " mod."),
-                    modsThatFailedUpdateCheck, Color.RED);
+                    + (modsThatFailedUpdateCheck == 1 ? " mod." : " mods."),
+                    Integer.toString(modsThatFailedUpdateCheck), Color.RED);
         }
 
         // Warn if a Starsector update is available
         if (updateInfo.ssUpdate != null)
         {
             ui.addMessage("There is a game update available: " + updateInfo.ssUpdate,
-                    Color.YELLOW, updateInfo.ssUpdate, Color.CYAN);
-        }
-        else
-        {
-            ui.addMessage("Starsector is up to date.", Color.GREEN);
+                    updateInfo.ssUpdate, Color.YELLOW);
         }
 
         String keyName = Keyboard.getKeyName(VCModPlugin.notificationKey);
