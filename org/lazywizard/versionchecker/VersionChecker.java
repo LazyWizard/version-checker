@@ -195,110 +195,59 @@ final class VersionChecker
             return service;
         }
 
-        public static void main(String[] args)
-        {
-            String[] allVersions = new String[]
-            {
-                "Starsector 0.35a-pre-RC2",
-                "Starsector 0.5a-pre-RC3",
-                "Starsector 0.51a-RC1",
-                "Starsector 0.51a-RC3",
-                "Starsector 0.52a-RC2",
-                "Starsector 0.52.1a-RC4",
-                "Starsector 0.53a-RC4",
-                "Starsector 0.53.1a-RC5",
-                "Starsector 0.54a-RC5",
-                "Starsector 0.54.1a-RC2",
-                "Starsector 0.6a-RC1",
-                "Starsector 0.6a-RC4",
-                "Starsector 0.6.1a-RC2",
-                "Starsector 0.6.2a-RC2",
-                "Starsector 0.6.2a-RC3",
-                "Starsector 0.65a-inter1",
-                "Starsector 0.65a-inter2",
-                "Starsector 0.65a-loadingTest1",
-                "Starsector 0.65a-RC1",
-                "Starsector 0.65.1a-RC1",
-                "Starsector 0.65.2a-RC1"
-            };
-
-            // Proper order, all should be true
-            System.out.println("Proper order\n------------");
-            for (int x = 0; x < allVersions.length - 1; x++)
-            {
-                String vOld = allVersions[x], vNew = allVersions[x + 1];
-                System.out.println(vOld + " vs " + vNew + ": "
-                        + isUpdateAvailable(vOld, vNew));
-            }
-
-            // Reverse order, all should be false
-            System.out.println("\nReverse order\n-------------");
-            for (int x = allVersions.length - 1; x > 1; x--)
-            {
-                String vOld = allVersions[x], vNew = allVersions[x - 1];
-                System.out.println(vOld + " vs " + vNew + ": "
-                        + isUpdateAvailable(vOld, vNew));
-            }
-        }
-
         // Based on StackOverflow answer by Alex Gitelman found here:
         // http://stackoverflow.com/a/6702029/1711452
-        private static boolean versionCompare(String oldVersion, String newVersion)
+        private static boolean isRemoteNewer(String localVersion, String remoteVersion)
         {
-            if (oldVersion == null || newVersion == null
-                    || oldVersion.equalsIgnoreCase(newVersion))
+            if (localVersion == null || remoteVersion == null
+                    || localVersion.equalsIgnoreCase(remoteVersion))
             {
                 return false;
             }
 
-            //System.out.println(oldVersion + " vs " + newVersion);
-            final String[] oldRaw = oldVersion.split("\\."),
-                    newRaw = newVersion.split("\\.");
+            final String[] localRaw = localVersion.split("\\."),
+                    remoteRaw = remoteVersion.split("\\.");
             int i = 0;
             // Set index to first non-equal ordinal or length of shortest version string
-            while (i < oldRaw.length && i < newRaw.length && oldRaw[i].equalsIgnoreCase(newRaw[i]))
+            while (i < localRaw.length && i < remoteRaw.length && localRaw[i].equalsIgnoreCase(remoteRaw[i]))
             {
-                //System.out.println(oldRaw[i] + " vs " + newRaw[i]);
                 i++;
             }
             // Compare first non-equal ordinal number
-            if (i < oldRaw.length && i < newRaw.length)
+            if (i < localRaw.length && i < remoteRaw.length)
             {
-                String oldPadded = String.format("%-2d", Integer.valueOf(oldRaw[i])).replace(' ', '0'),
-                        newPadded = String.format("%-2d", Integer.valueOf(newRaw[i])).replace(' ', '0');
-                //System.out.println(oldPadded + " vs " + newPadded);
-                return newPadded.compareTo(oldPadded) > 0;
-                //return (Integer.valueOf(newRaw[i]) > Integer.valueOf(oldRaw[i]));
+                final String localPadded = String.format("%-3d", Integer.valueOf(localRaw[i])).replace(' ', '0'),
+                        remotePadded = String.format("%-3d", Integer.valueOf(remoteRaw[i])).replace(' ', '0');
+                return remotePadded.compareTo(localPadded) > 0;
             }
             // The strings are equal or one string is a substring of the other
             // e.g. "1.2.3" = "1.2.3" or "1.2.3" < "1.2.3.4"
             else
             {
-                //System.out.println("Fallback: length");
-                return newRaw.length > oldRaw.length;
+                return remoteRaw.length > localRaw.length;
             }
         }
 
-        private static boolean isUpdateAvailable(String oldVersion, String newVersion)
+        private static boolean isUpdateAvailable(String localVersion, String remoteVersion)
         {
             // Split version number and release candidate number
-            String[] oldRaw = oldVersion.split("-", 2);
-            String[] newRaw = newVersion.split("-", 2);
+            final String[] localRaw = localVersion.split("-", 2),
+                    remoteRaw = remoteVersion.split("-", 2);
 
             // Parse useful version data from version string
-            String vOld = oldRaw[0].replaceAll("[^0-9.]", "");
-            String vNew = newRaw[0].replaceAll("[^0-9.]", "");
-            String rcOld = (oldRaw.length > 1 ? oldRaw[1] : "0");
-            String rcNew = (newRaw.length > 1 ? newRaw[1] : "0");
+            final String vLocal = localRaw[0].replaceAll("[^0-9.]", ""),
+                    vRemote = remoteRaw[0].replaceAll("[^0-9.]", ""),
+                    rcLocal = (localRaw.length > 1 ? localRaw[1] : "0"),
+                    rcRemote = (remoteRaw.length > 1 ? remoteRaw[1] : "0");
 
             // Check major version to see if remote version is newer
-            if (!vOld.equalsIgnoreCase(vNew))
+            if (!vLocal.equalsIgnoreCase(vRemote))
             {
-                return versionCompare(vOld, vNew);
+                return isRemoteNewer(vLocal, vRemote);
             }
 
             // Check release candidate if major versions are the same
-            return (rcNew.compareToIgnoreCase(rcOld) > 0);
+            return (rcRemote.compareToIgnoreCase(rcLocal) > 0);
         }
 
         @Override
