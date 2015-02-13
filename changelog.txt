@@ -5,6 +5,7 @@ Changes to Starsector game update notifications:
  - Only warns about Starsector update if remote version is newer, not just
    a different version than the one installed (it still won't warn about
    Starsector updates until I update the repository after each patch)
+ - Now notifies the player if the Starsector update check fails
 
  Version 1.4 (February 10, 2015)
 =================================

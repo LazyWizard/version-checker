@@ -61,7 +61,7 @@ final class UpdateNotificationScript implements EveryFrameScript
         if (modsWithoutUpdates > 0)
         {
             ui.addMessage(modsWithoutUpdates + (modsWithoutUpdates == 1
-                    ? " mod is " : " mods are") + " up to date.",
+                    ? " mod is" : " mods are") + " up to date.",
                     Integer.toString(modsWithoutUpdates), Color.GREEN);
         }
 
@@ -86,6 +86,10 @@ final class UpdateNotificationScript implements EveryFrameScript
         {
             ui.addMessage("There is a game update available: " + updateInfo.ssUpdate,
                     updateInfo.ssUpdate, Color.YELLOW);
+        }
+        else if (updateInfo.failedSSCheck)
+        {
+            ui.addMessage("Failed to retrieve latest SS version.", Color.RED);
         }
 
         String keyName = Keyboard.getKeyName(VCModPlugin.notificationKey);
@@ -155,6 +159,7 @@ final class UpdateNotificationScript implements EveryFrameScript
                 = "http://fractalsoftworks.com/forum/index.php?board=1.0";
         private static final int ENTRIES_PER_PAGE = 5;
         private final String ssUpdate;
+        private final boolean failedSSCheck;
         private final List<ModInfo> hasUpdate, hasNoUpdate, failedCheck;
         private InteractionDialogAPI dialog;
         private TextPanelAPI text;
@@ -181,6 +186,7 @@ final class UpdateNotificationScript implements EveryFrameScript
             hasNoUpdate = updateInfo.getHasNoUpdate();
             failedCheck = updateInfo.getFailed();
             ssUpdate = updateInfo.ssUpdate;
+            failedSSCheck = updateInfo.failedSSCheck;
 
             // Sort by mod name
             Collections.sort(hasUpdate);
@@ -287,6 +293,14 @@ final class UpdateNotificationScript implements EveryFrameScript
                         text.highlightInLastPara(Color.YELLOW, ssUpdate);
 
                         options.addOption("Download " + ssUpdate, Menu.UPDATE_VANILLA);
+                    }
+                    // Notify that update check failed
+                    else if (failedSSCheck)
+                    {
+                        text.addParagraph("Failed to retrieve latest Starsector version\n - Current: "
+                                + Display.getTitle());
+                        text.highlightFirstInLastPara(Display.getTitle(), Color.RED);
+                        options.addOption("Go to Starsector announcement board", Menu.UPDATE_VANILLA);
                     }
 
                     options.addOption("Exit", Menu.EXIT);
