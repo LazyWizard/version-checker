@@ -1,4 +1,4 @@
- Version 1.4b (February XX, 2015)
+ Version 1.4b (February 12, 2015)
 ==================================
 Reordered dialog options to match text order
 Changes to Starsector game update notifications:
