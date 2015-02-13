@@ -200,8 +200,6 @@ final class UpdateNotificationScript implements EveryFrameScript
                 VersionFile local = mod.getLocalVersion();
                 options.addOption(local.getName(), local);
                 options.setEnabled(local, local.getThreadURL() != null);
-                //options.setShortcut(local, Keyboard.getKeyIndex(Integer.toString(y)),
-                //        false, false, false, false);
             }
 
             // Support for multiple pages of options
@@ -275,18 +273,12 @@ final class UpdateNotificationScript implements EveryFrameScript
                     }
 
                     dialog.setPromptText("Select a category for forum thread links:");
-                    options.addOption("List mods with updates", Menu.LIST_UPDATES);
-                    options.setEnabled(Menu.LIST_UPDATES, !hasUpdate.isEmpty());
-                    //options.setShortcut(Menu.LIST_UPDATES, Keyboard.KEY_1,
-                    //        false, false, false, false);
                     options.addOption("List mods without updates", Menu.LIST_NO_UPDATES);
                     options.setEnabled(Menu.LIST_NO_UPDATES, !hasNoUpdate.isEmpty());
-                    //options.setShortcut(Menu.LIST_NO_UPDATES, Keyboard.KEY_2,
-                    //        false, false, false, false);
+                    options.addOption("List mods with updates", Menu.LIST_UPDATES);
+                    options.setEnabled(Menu.LIST_UPDATES, !hasUpdate.isEmpty());
                     options.addOption("List mods that failed update check", Menu.LIST_FAILED);
                     options.setEnabled(Menu.LIST_FAILED, !failedCheck.isEmpty());
-                    //options.setShortcut(Menu.LIST_FAILED, Keyboard.KEY_3,
-                    //        false, false, false, false);
 
                     // Notify of game update if available
                     if (ssUpdate != null)
@@ -295,13 +287,9 @@ final class UpdateNotificationScript implements EveryFrameScript
                         text.highlightInLastPara(Color.YELLOW, ssUpdate);
 
                         options.addOption("Download " + ssUpdate, Menu.UPDATE_VANILLA);
-                        //options.setShortcut(Menu.UPDATE_VANILLA, Keyboard.KEY_4,
-                        //        false, false, false, false);
                     }
 
                     options.addOption("Exit", Menu.EXIT);
-                    //options.setShortcut(Menu.EXIT, Keyboard.KEY_ESCAPE,
-                    //        false, false, false, true);
                     break;
                 case UPDATE_VANILLA:
                     goToMenu(Menu.MAIN_MENU);
