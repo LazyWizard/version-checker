@@ -113,7 +113,7 @@ final class VersionChecker
         }
     }
 
-    private static String getLatestSSVersion()
+    private static String getLatestSSVersion() throws IOException
     {
         Global.getLogger(VersionChecker.class).log(Level.INFO,
                 "Loading starsector update info from remote URL " + VANILLA_UPDATE_URL);
@@ -125,18 +125,10 @@ final class VersionChecker
             return scanner.next();
 
         }
+        // This should never happen as the URL is hardcoded
         catch (MalformedURLException ex)
         {
-            Global.getLogger(VersionChecker.class).log(Level.ERROR,
-                    "Invalid vanilla update URL \"" + VANILLA_UPDATE_URL + "\"", ex);
-            return null;
-        }
-        catch (IOException ex)
-        {
-            Global.getLogger(VersionChecker.class).log(Level.ERROR,
-                    "Failed to load vanilla update data from URL \""
-                    + VANILLA_UPDATE_URL + "\"", ex);
-            return null;
+            throw new RuntimeException("Invalid vanilla update URL \"" + VANILLA_UPDATE_URL + "\"", ex);
         }
     }
 
@@ -225,7 +217,7 @@ final class VersionChecker
             {
                 String vOld = allVersions[x], vNew = allVersions[x + 1];
                 System.out.println(vOld + " vs " + vNew + ": "
-                        + isUpdateAvailable(vOld, vNew));
+                        + isRemoteNewer(vOld, vNew));
             }
 
             // Reverse order, all should be false
@@ -234,11 +226,11 @@ final class VersionChecker
             {
                 String vOld = allVersions[x], vNew = allVersions[x - 1];
                 System.out.println(vOld + " vs " + vNew + ": "
-                        + isUpdateAvailable(vOld, vNew));
+                        + isRemoteNewer(vOld, vNew));
             }
         }
 
-        private static boolean isUpdateAvailable(String localVersion, String remoteVersion)
+        private static boolean isRemoteNewer(String localVersion, String remoteVersion)
         {
             // Sanity check
             if (localVersion == null || remoteVersion == null)
@@ -303,20 +295,29 @@ final class VersionChecker
             CompletionService<ModInfo> service = createCompletionService();
             final UpdateInfo results = new UpdateInfo();
 
-            // Poll for SS update, can block if site is down
-            // TODO: Notify player if SS update check fails
+            // Poll for SS update, can block if site is unresponsive
             if (VCModPlugin.checkSSVersion)
             {
-                final String currentVanilla = Display.getTitle(),
-                        latestVanilla = getLatestSSVersion(); // Throws esceptions
-                Global.getLogger(VersionChecker.class).log(Level.INFO,
-                        "Local Starsector version is " + currentVanilla
-                        + ", latest known is " + latestVanilla);
-                if (isUpdateAvailable(currentVanilla, latestVanilla))
+                try
                 {
+                    final String currentVanilla = Display.getTitle(),
+                            latestVanilla = getLatestSSVersion();
                     Global.getLogger(VersionChecker.class).log(Level.INFO,
-                            "Starsector update available");
-                    results.ssUpdate = latestVanilla;
+                            "Local Starsector version is " + currentVanilla
+                            + ", latest known is " + latestVanilla);
+                    if (isRemoteNewer(currentVanilla, latestVanilla))
+                    {
+                        Global.getLogger(VersionChecker.class).log(Level.INFO,
+                                "Starsector update available!");
+                        results.ssUpdate = latestVanilla;
+                    }
+                }
+                catch (IOException ex)
+                {
+                    Global.getLogger(VersionChecker.class).log(Level.ERROR,
+                            "Failed to load vanilla update data from URL \""
+                            + VANILLA_UPDATE_URL + "\"", ex);
+                    results.failedSSCheck = true;
                 }
             }
 
