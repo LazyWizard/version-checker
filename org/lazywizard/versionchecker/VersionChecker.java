@@ -195,59 +195,101 @@ final class VersionChecker
             return service;
         }
 
-        // Based on StackOverflow answer by Alex Gitelman found here:
-        // http://stackoverflow.com/a/6702029/1711452
-        private static boolean isRemoteNewer(String localVersion, String remoteVersion)
+        public static void main(String[] args)
         {
-            if (localVersion == null || remoteVersion == null
-                    || localVersion.equalsIgnoreCase(remoteVersion))
+            final String[] allVersions = new String[]
             {
-                return false;
+                "Starsector 0.35a-pre-RC2",
+                "Starsector 0.5a-pre-RC3",
+                "Starsector 0.51a-RC1",
+                "Starsector 0.51a-RC3",
+                "Starsector 0.52a-RC2",
+                "Starsector 0.52.1a-RC4",
+                "Starsector 0.53a-RC4",
+                "Starsector 0.53.1a-RC5",
+                "Starsector 0.54a-RC5",
+                "Starsector 0.54.1a-RC2",
+                "Starsector 0.6a-RC1",
+                "Starsector 0.6a-RC4",
+                "Starsector 0.6.1a-RC2",
+                "Starsector 0.6.2a-RC2",
+                "Starsector 0.6.2a-RC3",
+                "Starsector 0.65a-RC1",
+                "Starsector 0.65.1a-RC1",
+                "Starsector 0.65.2a-RC1"
+            };
+
+            // Proper order, all should be true
+            System.out.println(" Proper order\n--------------");
+            for (int x = 0; x < allVersions.length - 1; x++)
+            {
+                String vOld = allVersions[x], vNew = allVersions[x + 1];
+                System.out.println(vOld + " vs " + vNew + ": "
+                        + isUpdateAvailable(vOld, vNew));
             }
 
-            final String[] localRaw = localVersion.split("\\."),
-                    remoteRaw = remoteVersion.split("\\.");
-            int i = 0;
-            // Set index to first non-equal ordinal or length of shortest version string
-            while (i < localRaw.length && i < remoteRaw.length && localRaw[i].equalsIgnoreCase(remoteRaw[i]))
+            // Reverse order, all should be false
+            System.out.println("\n Reverse order\n---------------");
+            for (int x = allVersions.length - 1; x > 1; x--)
             {
-                i++;
-            }
-            // Compare first non-equal ordinal number
-            if (i < localRaw.length && i < remoteRaw.length)
-            {
-                final String localPadded = String.format("%-3d", Integer.valueOf(localRaw[i])).replace(' ', '0'),
-                        remotePadded = String.format("%-3d", Integer.valueOf(remoteRaw[i])).replace(' ', '0');
-                return remotePadded.compareTo(localPadded) > 0;
-            }
-            // The strings are equal or one string is a substring of the other
-            // e.g. "1.2.3" = "1.2.3" or "1.2.3" < "1.2.3.4"
-            else
-            {
-                return remoteRaw.length > localRaw.length;
+                String vOld = allVersions[x], vNew = allVersions[x - 1];
+                System.out.println(vOld + " vs " + vNew + ": "
+                        + isUpdateAvailable(vOld, vNew));
             }
         }
 
         private static boolean isUpdateAvailable(String localVersion, String remoteVersion)
         {
-            // Split version number and release candidate number
-            final String[] localRaw = localVersion.split("-", 2),
-                    remoteRaw = remoteVersion.split("-", 2);
+            // Sanity check
+            if (localVersion == null || remoteVersion == null)
+            {
+                return false;
+            }
 
-            // Parse useful version data from version string
-            final String vLocal = localRaw[0].replaceAll("[^0-9.]", ""),
-                    vRemote = remoteRaw[0].replaceAll("[^0-9.]", ""),
+            // Remove all non-version data from the version information,
+            // then split the version number and release candidate number
+            // (ex: "Starsector 0.65.2a-RC1" becomes {"0.65.2","1"})
+            final String[] localRaw = localVersion.replaceAll("[^0-9.-]", "").split("-", 2),
+                    remoteRaw = remoteVersion.replaceAll("[^0-9.-]", "").split("-", 2);
+
+            // Assign array values to variables (solely for clarity's sake)
+            final String vLocal = localRaw[0], vRemote = remoteRaw[0],
                     rcLocal = (localRaw.length > 1 ? localRaw[1] : "0"),
                     rcRemote = (remoteRaw.length > 1 ? remoteRaw[1] : "0");
 
-            // Check major version to see if remote version is newer
-            if (!vLocal.equalsIgnoreCase(vRemote))
+            // Check major.minor versions to see if remote version is newer
+            // Based on StackOverflow answer by Alex Gitelman found here:
+            // http://stackoverflow.com/a/6702029/1711452
+            if (!vLocal.equals(vRemote))
             {
-                return isRemoteNewer(vLocal, vRemote);
+                // Split version number into major, minor, patch, etc
+                final String[] localMajorMinor = vLocal.split("\\."),
+                        remoteMajorMinor = vRemote.split("\\.");
+                int i = 0;
+                // Iterate through all subversions until we find one that's not equal
+                while (i < localMajorMinor.length && i < remoteMajorMinor.length
+                        && localMajorMinor[i].equals(remoteMajorMinor[i]))
+                {
+                    i++;
+                }
+                // Compare first non-equal subversion number
+                if (i < localMajorMinor.length && i < remoteMajorMinor.length)
+                {
+                    // Pad numbers so ex: 0.65 is considered higher than 0.6
+                    final String localPadded = String.format("%-3s", localMajorMinor[i]).replace(' ', '0'),
+                            remotePadded = String.format("%-3s", remoteMajorMinor[i]).replace(' ', '0');
+                    return remotePadded.compareTo(localPadded) > 0;
+                }
+                // If version length differs but up to that length they are equal,
+                // then the longer one is a patch of the shorter
+                else
+                {
+                    return remoteMajorMinor.length > localMajorMinor.length;
+                }
             }
 
-            // Check release candidate if major versions are the same
-            return (rcRemote.compareToIgnoreCase(rcLocal) > 0);
+            // Check release candidate if major.minor versions are the same
+            return (rcRemote.compareTo(rcLocal) > 0);
         }
 
         @Override
