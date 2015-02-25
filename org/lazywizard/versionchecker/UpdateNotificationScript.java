@@ -212,22 +212,22 @@ final class UpdateNotificationScript implements EveryFrameScript
             if (currentPage > 1)
             {
                 options.addOption("Previous page", Menu.PREVIOUS_PAGE);
-                //options.setShortcut(Menu.PREVIOUS_PAGE, Keyboard.KEY_LEFT,
-                //        false, false, false, true);
+                options.setShortcut(Menu.PREVIOUS_PAGE, Keyboard.KEY_LEFT,
+                        false, false, false, true);
             }
             if (currentPage < numPages)
             {
                 options.addOption("Next page", Menu.NEXT_PAGE);
-                //options.setShortcut(Menu.NEXT_PAGE, Keyboard.KEY_RIGHT,
-                //        false, false, false, true);
+                options.setShortcut(Menu.NEXT_PAGE, Keyboard.KEY_RIGHT,
+                        false, false, false, true);
             }
 
             // Show page number in prompt if multiple pages are present
             dialog.setPromptText("Select a mod to go to its forum thread"
                     + (numPages > 1 ? " (page " + currentPage + "/" + numPages + ")" : "") + ":");
             options.addOption("Main menu", Menu.MAIN_MENU);
-            //options.setShortcut(Menu.MAIN_MENU, Keyboard.KEY_ESCAPE,
-            //        false, false, false, true);
+            options.setShortcut(Menu.MAIN_MENU, Keyboard.KEY_ESCAPE,
+                    false, false, false, true);
         }
 
         private void goToMenu(Menu menu)
@@ -304,6 +304,8 @@ final class UpdateNotificationScript implements EveryFrameScript
                     }
 
                     options.addOption("Exit", Menu.EXIT);
+                    options.setShortcut(Menu.EXIT, Keyboard.KEY_ESCAPE,
+                            false, false, false, true);
                     break;
                 case UPDATE_VANILLA:
                     goToMenu(Menu.MAIN_MENU);
