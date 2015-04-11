@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -313,12 +312,12 @@ final class UpdateNotificationScript implements EveryFrameScript
                     options.setEnabled(Menu.UPDATE_VANILLA, false);
                     try
                     {
-                        Desktop.getDesktop().browse(new URI(ANNOUNCEMENT_BOARD));
+                        Desktop.getDesktop().browse(URI.create(ANNOUNCEMENT_BOARD));
                     }
-                    catch (IOException | URISyntaxException ex)
+                    catch (IOException ex)
                     {
                         Global.getLogger(VersionChecker.class).log(Level.ERROR,
-                                "Failed to launch browser:", ex);
+                                "Failed to launch browser: ", ex);
                         text.addParagraph("Failed to launch browser: "
                                 + ex.getMessage(), Color.RED);
                     }
@@ -384,12 +383,12 @@ final class UpdateNotificationScript implements EveryFrameScript
                     VersionFile info = (VersionFile) optionData;
                     text.addParagraph("Opening " + info.getName() + " forum thread...");
                     options.setEnabled(info, false);
-                    Desktop.getDesktop().browse(new URI(info.getThreadURL()));
+                    Desktop.getDesktop().browse(URI.create(info.getThreadURL()));
                 }
-                catch (IOException | URISyntaxException ex)
+                catch (IOException ex)
                 {
                     Global.getLogger(VersionChecker.class).log(Level.ERROR,
-                            "Failed to launch browser:", ex);
+                            "Failed to launch browser: ", ex);
                     text.addParagraph("Failed to launch browser: "
                             + ex.getMessage(), Color.RED);
                 }
