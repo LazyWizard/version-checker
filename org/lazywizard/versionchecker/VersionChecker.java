@@ -123,7 +123,6 @@ final class VersionChecker
                 Scanner scanner = new Scanner(stream, "UTF-8").useDelimiter("\\A"))
         {
             return scanner.next();
-
         }
         // This should never happen as the URL is hardcoded
         catch (MalformedURLException ex)
@@ -216,17 +215,17 @@ final class VersionChecker
             for (int x = 0; x < allVersions.length - 1; x++)
             {
                 String vOld = allVersions[x], vNew = allVersions[x + 1];
-                System.out.println(vOld + " vs " + vNew + ": "
-                        + isRemoteNewer(vOld, vNew));
+                System.out.printf("%-55s %5s\n", vOld + " vs " + vNew + ": ",
+                        isRemoteNewer(vOld, vNew));
             }
 
             // Reverse order, all should be false
             System.out.println("\n Reverse order\n---------------");
-            for (int x = allVersions.length - 1; x > 1; x--)
+            for (int x = allVersions.length - 1; x > 0; x--)
             {
                 String vOld = allVersions[x], vNew = allVersions[x - 1];
-                System.out.println(vOld + " vs " + vNew + ": "
-                        + isRemoteNewer(vOld, vNew));
+                System.out.printf("%-55s %5s\n", vOld + " vs " + vNew + ": ",
+                        isRemoteNewer(vOld, vNew));
             }
         }
 
