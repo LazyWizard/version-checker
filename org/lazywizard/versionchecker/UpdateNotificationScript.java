@@ -81,14 +81,15 @@ final class UpdateNotificationScript implements EveryFrameScript
         }
 
         // Warn if a Starsector update is available
-        if (updateInfo.ssUpdate != null)
+        if (updateInfo.getSSUpdate() != null)
         {
-            ui.addMessage("There is a game update available: " + updateInfo.ssUpdate,
-                    updateInfo.ssUpdate, Color.YELLOW);
+            ui.addMessage("There is a game update available: "
+                    + updateInfo.getSSUpdate(), updateInfo.getSSUpdate(), Color.YELLOW);
         }
-        else if (updateInfo.failedSSCheck)
+        else if (updateInfo.getFailedSSError() != null)
         {
-            ui.addMessage("Failed to retrieve latest SS version.", Color.RED);
+            ui.addMessage("Failed to retrieve latest SS version: "
+                    + updateInfo.getFailedSSError(), Color.RED);
         }
 
         String keyName = Keyboard.getKeyName(VCModPlugin.notificationKey);
@@ -157,8 +158,7 @@ final class UpdateNotificationScript implements EveryFrameScript
         private static final String ANNOUNCEMENT_BOARD
                 = "http://fractalsoftworks.com/forum/index.php?board=1.0";
         private static final int ENTRIES_PER_PAGE = 5;
-        private final String ssUpdate;
-        private final boolean failedSSCheck;
+        private final String ssUpdate, ssUpdateError;
         private final List<ModInfo> hasUpdate, hasNoUpdate, failedCheck;
         private InteractionDialogAPI dialog;
         private TextPanelAPI text;
@@ -184,8 +184,8 @@ final class UpdateNotificationScript implements EveryFrameScript
             hasUpdate = updateInfo.getHasUpdate();
             hasNoUpdate = updateInfo.getHasNoUpdate();
             failedCheck = updateInfo.getFailed();
-            ssUpdate = updateInfo.ssUpdate;
-            failedSSCheck = updateInfo.failedSSCheck;
+            ssUpdate = updateInfo.getSSUpdate();
+            ssUpdateError = updateInfo.getFailedSSError();
 
             // Sort by mod name
             Collections.sort(hasUpdate);
@@ -294,10 +294,10 @@ final class UpdateNotificationScript implements EveryFrameScript
                         options.addOption("Download " + ssUpdate, Menu.UPDATE_VANILLA);
                     }
                     // Notify that update check failed
-                    else if (failedSSCheck)
+                    else if (ssUpdateError != null)
                     {
-                        text.addParagraph("Failed to retrieve latest Starsector version\n - Current: "
-                                + Display.getTitle());
+                        text.addParagraph("Failed to retrieve latest Starsector version ("
+                                + ssUpdateError + "):\n - Current: " + Display.getTitle());
                         text.highlightFirstInLastPara(Display.getTitle(), Color.RED);
                         options.addOption("Go to Starsector announcement board", Menu.UPDATE_VANILLA);
                     }

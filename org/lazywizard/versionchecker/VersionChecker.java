@@ -308,7 +308,7 @@ final class VersionChecker
                     {
                         Global.getLogger(VersionChecker.class).log(Level.INFO,
                                 "Starsector update available!");
-                        results.ssUpdate = latestVanilla;
+                        results.setSSUpdate(latestVanilla);
                     }
                 }
                 catch (IOException ex)
@@ -316,7 +316,7 @@ final class VersionChecker
                     Global.getLogger(VersionChecker.class).log(Level.ERROR,
                             "Failed to load vanilla update data from URL \""
                             + VANILLA_UPDATE_URL + "\"", ex);
-                    results.failedSSCheck = true;
+                    results.setFailedSSError(ex.getClass().getSimpleName());
                 }
             }
 

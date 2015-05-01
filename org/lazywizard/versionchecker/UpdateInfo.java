@@ -14,8 +14,28 @@ final class UpdateInfo
     private final List<ModInfo> hasNoUpdate = new ArrayList<>();
     private final List<ModInfo> failedCheck = new ArrayList<>();
     private int numModsChecked = 0;
-    String ssUpdate = null;
-    boolean failedSSCheck = false;
+    private String ssUpdate = null;
+    private String ssUpdateError = null;
+
+    void setSSUpdate(String latestVersion)
+    {
+        this.ssUpdate = latestVersion;
+    }
+
+    String getSSUpdate()
+    {
+        return ssUpdate;
+    }
+
+    void setFailedSSError(String ssUpdateError)
+    {
+        this.ssUpdateError = ssUpdateError;
+    }
+
+    String getFailedSSError()
+    {
+        return ssUpdateError;
+    }
 
     void addFailed(ModInfo mod)
     {
