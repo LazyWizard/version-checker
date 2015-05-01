@@ -1,3 +1,7 @@
+ Version 1.5 (April XX, 2015)
+==============================
+If an update check fails, the exact error is now shown in the update dialog
+
  Version 1.4b (February 12, 2015)
 ==================================
 Reordered dialog options to match text order
