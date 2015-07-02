@@ -250,7 +250,8 @@ final class UpdateNotificationScript implements EveryFrameScript
                     {
                         text.addParagraph(" - " + info.getName() + " ("
                                 + info.getVersionString() + ")");
-                        text.highlightInLastPara(Color.GREEN, info.getName());
+                        text.highlightInLastPara(info.isLocalNewer() ? Color.CYAN
+                                : Color.GREEN, info.getName());
                     }
 
                     text.addParagraph((numHasUpdate == 1)

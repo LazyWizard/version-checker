@@ -110,6 +110,11 @@ final class UpdateInfo
             return localVersion.isOlderThan(remoteVersion);
         }
 
+        boolean isLocalNewer()
+        {
+            return localVersion.isNewerThan(remoteVersion);
+        }
+
         public String getVersionString()
         {
             if (remoteVersion == null)
@@ -191,16 +196,7 @@ final class UpdateInfo
 
         private static boolean isNumerical(String str)
         {
-            // Search for non-numeric characters in the string
-            for (char tmp : str.toCharArray())
-            {
-                if (!Character.isDigit(tmp))
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            return (!str.isEmpty() && Character.isDigit(str.charAt(0)));
         }
 
         String getVersion()
