@@ -76,11 +76,20 @@ final class UpdateInfo
     static final class ModInfo implements Comparable<ModInfo>
     {
         private final VersionFile localVersion, remoteVersion;
+        private final String errorMessage;
 
         ModInfo(VersionFile localVersion, VersionFile remoteVersion)
         {
             this.localVersion = localVersion;
             this.remoteVersion = remoteVersion;
+            errorMessage = null;
+        }
+
+        ModInfo(VersionFile localVersion, String errorMessage)
+        {
+            this.localVersion = localVersion;
+            this.errorMessage = errorMessage;
+            remoteVersion = null;
         }
 
         String getName()
@@ -103,6 +112,11 @@ final class UpdateInfo
             return (remoteVersion == null);
         }
 
+        String getErrorMessage()
+        {
+            return errorMessage;
+        }
+
         boolean isUpdateAvailable()
         {
             return localVersion.isOlderThan(remoteVersion);
@@ -120,21 +134,7 @@ final class UpdateInfo
                 return localVersion.getVersion();
             }
 
-            String operator;
-            if (localVersion.isOlderThan(remoteVersion))
-            {
-                operator = " <= ";
-            }
-            else if (localVersion.isNewerThan(remoteVersion))
-            {
-                operator = " => ";
-            }
-            else
-            {
-                operator = " == ";
-            }
-
-            return localVersion.getVersion() + operator + remoteVersion.getVersion();
+            return localVersion.getVersion() + " vs " + remoteVersion.getVersion();
         }
 
         @Override

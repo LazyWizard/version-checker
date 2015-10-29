@@ -1,12 +1,11 @@
 package org.lazywizard.versionchecker;
 
-import com.fs.starfarer.api.Global;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 class Log
 {
-    private static final Logger Log = Global.getLogger(VersionChecker.class);
+    private static final Logger Log = Logger.getLogger(VersionChecker.class);
 
     static void setLevel(Level level)
     {

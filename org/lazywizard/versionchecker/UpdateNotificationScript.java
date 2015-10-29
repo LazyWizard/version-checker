@@ -155,7 +155,7 @@ final class UpdateNotificationScript implements EveryFrameScript
     {
         private static final String ANNOUNCEMENT_BOARD
                 = "http://fractalsoftworks.com/forum/index.php?board=1.0";
-        private static final int ENTRIES_PER_PAGE = 5;
+        private static final int ENTRIES_PER_PAGE = 5, LINE_LENGTH = 45;
         private final String ssUpdate, ssUpdateError;
         private final List<ModInfo> hasUpdate, hasNoUpdate, failedCheck;
         private InteractionDialogAPI dialog;
@@ -189,6 +189,106 @@ final class UpdateNotificationScript implements EveryFrameScript
             Collections.sort(hasUpdate);
             Collections.sort(hasNoUpdate);
             Collections.sort(failedCheck);
+        }
+
+        // Taken from LazyLib's StringUtils, still up-to-date as of LazyLib v2.1
+        private static String wrap(String toWrap)
+        {
+            if (toWrap == null || LINE_LENGTH <= 1)
+            {
+                return "";
+            }
+
+            // Analyse each line of the message seperately
+            String[] lines = toWrap.split("\n");
+            // StringBuilder doesn't auto-resize down, so setting the length here
+            // is an optimization even though length is reset to 0 each line
+            StringBuilder line = new StringBuilder(LINE_LENGTH);
+            StringBuilder message = new StringBuilder((int) (toWrap.length() * 1.1f));
+            for (String rawLine : lines)
+            {
+                // Check if the string even needs to be broken up
+                if (rawLine.length() <= LINE_LENGTH)
+                {
+                    // Entire message fits into a single line
+                    message.append(rawLine).append("\n");
+                }
+                else
+                {
+                    // Clear the StringBuilder so we can generate a new line
+                    line.setLength(0);
+                    // Split the line up into the individual words, and append each
+                    // word to the next line until the character limit is reached
+                    String[] words = rawLine.split(" ");
+                    for (int y = 0; y < words.length; y++)
+                    {
+                        // If this word by itself is longer than the line limit,
+                        // break it up into multiple sub-lines separated by a dash
+                        if (words[y].length() >= LINE_LENGTH)
+                        {
+                            // Make sure to post the previous line in queue, if any
+                            if (line.length() > 0)
+                            {
+                                message.append(line.toString()).append("\n");
+                                line.setLength(0);
+                            }
+
+                            // Break up word into multiple lines separated with dash
+                            while (words[y].length() > LINE_LENGTH)
+                            {
+                                message.append(words[y].substring(0, LINE_LENGTH - 1))
+                                        .append("-\n");
+                                words[y] = words[y].substring(LINE_LENGTH - 1);
+                            }
+
+                            // Add any remaining text to the next line
+                            if (!words[y].isEmpty())
+                            {
+                                // If we have reached the end of the message, ensure
+                                // that we post the remaining part of the queue
+                                if (y == (words.length - 1))
+                                {
+                                    message.append(words[y]).append("\n");
+                                }
+                                else
+                                {
+                                    line.append(words[y]);
+                                }
+                            }
+                        }
+                        // If this word would put us over the length limit, post
+                        // the queue and back up a step (re-check this word with
+                        // a blank line - this is in case it trips the above block)
+                        else if (words[y].length() + line.length() >= LINE_LENGTH)
+                        {
+                            message.append(line.toString()).append("\n");
+                            line.setLength(0);
+                            y--;
+                        }
+                        // This word won't put us over the limit, add it to the queue
+                        else
+                        {
+                            line.append(words[y]);
+                            line.append(" ");
+
+                            // If we have reached the end of the message, ensure
+                            // that we post the remaining part of the queue
+                            if (y == (words.length - 1))
+                            {
+                                message.append(line.toString()).append("\n");
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Don't end with a newline if the original string didn't do so
+            if (!toWrap.endsWith("\n"))
+            {
+                message.deleteCharAt(message.length() - 1);
+            }
+
+            return message.toString();
         }
 
         private void generateModMenu()
@@ -246,10 +346,10 @@ final class UpdateNotificationScript implements EveryFrameScript
                             Integer.toString(numUpToDate));
                     for (ModInfo info : hasNoUpdate)
                     {
-                        text.addParagraph(" - " + info.getName() + " ("
-                                + info.getVersionString() + ")");
+                        text.addParagraph(wrap(" - " + info.getName() + " ("
+                                + info.getVersionString() + ")"));
                         text.highlightInLastPara(info.isLocalNewer() ? Color.CYAN
-                                : Color.GREEN, info.getName());
+                                : Color.GREEN, info.getName(), " vs ");
                     }
 
                     text.addParagraph((numHasUpdate == 1)
@@ -259,9 +359,9 @@ final class UpdateNotificationScript implements EveryFrameScript
                             : Color.GREEN), Integer.toString(numHasUpdate));
                     for (ModInfo info : hasUpdate)
                     {
-                        text.addParagraph(" - " + info.getName() + " ("
-                                + info.getVersionString() + ")");
-                        text.highlightInLastPara(Color.YELLOW, info.getName());
+                        text.addParagraph(wrap(" - " + info.getName() + " ("
+                                + info.getVersionString() + ")"));
+                        text.highlightInLastPara(Color.YELLOW, info.getName(), " vs ");
                     }
 
                     text.addParagraph((numFailed == 1)
@@ -271,8 +371,9 @@ final class UpdateNotificationScript implements EveryFrameScript
                             : Color.GREEN), Integer.toString(numFailed));
                     for (ModInfo info : failedCheck)
                     {
-                        text.addParagraph(" - " + info.getName() + " ("
-                                + info.getVersionString() + ")");
+                        text.addParagraph(wrap(" - " + info.getName() + " ("
+                                + info.getVersionString() + ", "
+                                + info.getErrorMessage() + ")"));
                         text.highlightInLastPara(Color.RED, info.getName());
                     }
 
