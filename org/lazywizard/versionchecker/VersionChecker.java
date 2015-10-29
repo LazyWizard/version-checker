@@ -17,13 +17,13 @@ import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.ThreadFactory;
 import com.fs.starfarer.api.Global;
-import org.apache.log4j.Level;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.lazywizard.versionchecker.UpdateInfo.ModInfo;
 import org.lazywizard.versionchecker.UpdateInfo.VersionFile;
 import org.lwjgl.opengl.Display;
 
+// TEMP: runcode String path = (System.getProperty("user.dir")+"/"+System.getProperty("com.fs.starfarer.settings.paths.mods")); path = path.replace("\\\\", "\\").replace("\\","/");System.out.println(path);
 final class VersionChecker
 {
     private static final String VANILLA_UPDATE_URL
@@ -74,14 +74,12 @@ final class VersionChecker
         if (!Global.getSettings().isDevMode()
                 && versionFileURL.trim().toLowerCase().startsWith("file:"))
         {
-            Global.getLogger(VersionChecker.class).log(Level.ERROR,
-                    "Local URLs are not allowed unless devmode is enabled: \""
+            Log.error("Local URLs are not allowed unless devmode is enabled: \""
                     + versionFileURL + "\"");
             return null;
         }
 
-        Global.getLogger(VersionChecker.class).log(Level.INFO,
-                "Loading version info from remote URL " + versionFileURL);
+        Log.info("Loading version info from remote URL " + versionFileURL);
 
         // Load JSON from external URL and parse version info from it
         try (InputStream stream = new URL(versionFileURL).openStream();
@@ -92,31 +90,24 @@ final class VersionChecker
         }
         catch (MalformedURLException ex)
         {
-            Global.getLogger(VersionChecker.class).log(Level.ERROR,
-                    "Invalid master version file URL \""
-                    + versionFileURL + "\"", ex);
+            Log.error("Invalid master version file URL \"" + versionFileURL + "\"", ex);
             return null;
         }
         catch (IOException ex)
         {
-            Global.getLogger(VersionChecker.class).log(Level.ERROR,
-                    "Failed to load master version file from URL \""
-                    + versionFileURL + "\"", ex);
+            Log.error("Failed to load master version file from URL \"" + versionFileURL + "\"", ex);
             return null;
         }
         catch (JSONException ex)
         {
-            Global.getLogger(VersionChecker.class).log(Level.ERROR,
-                    "Malformed JSON in remote version file at URL \""
-                    + versionFileURL + "\"", ex);
+            Log.error("Malformed JSON in remote version file at URL \"" + versionFileURL + "\"", ex);
             return null;
         }
     }
 
     private static String getLatestSSVersion() throws IOException
     {
-        Global.getLogger(VersionChecker.class).log(Level.INFO,
-                "Loading starsector update info from remote URL " + VANILLA_UPDATE_URL);
+        Log.info("Loading starsector update info from remote URL " + VANILLA_UPDATE_URL);
 
         // Get latest Starsector version from remote URL
         try (InputStream stream = new URL(VANILLA_UPDATE_URL).openStream();
@@ -207,7 +198,8 @@ final class VersionChecker
                 "Starsector 0.6.2a-RC3",
                 "Starsector 0.65a-RC1",
                 "Starsector 0.65.1a-RC1",
-                "Starsector 0.65.2a-RC1"
+                "Starsector 0.65.2a-RC1",
+                "Starsector 0.7a-RC1"
             };
 
             // Proper order, all should be true
@@ -286,8 +278,7 @@ final class VersionChecker
         @Override
         public UpdateInfo call() throws InterruptedException, ExecutionException
         {
-            Global.getLogger(VersionChecker.class).log(Level.INFO,
-                    "Starting update checks");
+            Log.info("Starting update checks");
             final long startTime = System.nanoTime();
 
             // Check for updates in separate threads for faster execution
@@ -301,20 +292,17 @@ final class VersionChecker
                 {
                     final String currentVanilla = Display.getTitle(),
                             latestVanilla = getLatestSSVersion();
-                    Global.getLogger(VersionChecker.class).log(Level.INFO,
-                            "Local Starsector version is " + currentVanilla
+                    Log.info("Local Starsector version is " + currentVanilla
                             + ", latest known is " + latestVanilla);
                     if (isRemoteNewer(currentVanilla, latestVanilla))
                     {
-                        Global.getLogger(VersionChecker.class).log(Level.INFO,
-                                "Starsector update available!");
+                        Log.info("Starsector update available!");
                         results.setSSUpdate(latestVanilla);
                     }
                 }
                 catch (IOException ex)
                 {
-                    Global.getLogger(VersionChecker.class).log(Level.ERROR,
-                            "Failed to load vanilla update data from URL \""
+                    Log.error("Failed to load vanilla update data from URL \""
                             + VANILLA_UPDATE_URL + "\"", ex);
                     results.setFailedSSError(ex.getClass().getSimpleName());
                 }
@@ -347,8 +335,7 @@ final class VersionChecker
             // Report how long the check took
             final String elapsedTime = DecimalFormat.getNumberInstance().format(
                     (System.nanoTime() - startTime) / 1000000000.0d);
-            Global.getLogger(VersionChecker.class).log(Level.INFO,
-                    "Checked game and " + results.getNumModsChecked()
+            Log.info("Checked game and " + results.getNumModsChecked()
                     + " mods in " + elapsedTime + " seconds");
             return results;
         }
