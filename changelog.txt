@@ -2,7 +2,7 @@
 =================================
 Updated to be compatible with Starsector 0.7a
 Local versions that are newer than the latest known are shown in cyan
-If an update check fails, the exact error is now shown in the update dialog
+If an update check fails, the reason is now shown in the update dialog
 
  Version 1.4b (February 12, 2015)
 ==================================

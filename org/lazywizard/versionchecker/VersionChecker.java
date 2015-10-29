@@ -62,12 +62,12 @@ final class VersionChecker
         return new JSONObject(result.toString());
     }
 
-    private static VersionFile getRemoteVersionFile(final String versionFileURL)
+    private static Object getRemoteVersionFile(final String versionFileURL)
     {
         // No valid master version URL entry was found in the .version file
         if (versionFileURL == null)
         {
-            return null;
+            return "no update URL was found in .version file";
         }
 
         // Don't allow local files outside of dev mode
@@ -76,7 +76,8 @@ final class VersionChecker
         {
             Log.error("Local URLs are not allowed unless devmode is enabled: \""
                     + versionFileURL + "\"");
-            return null;
+            return "local URLs are not allowed unless devmode is enabled: \""
+                    + versionFileURL + "\"";
         }
 
         Log.info("Loading version info from remote URL " + versionFileURL);
@@ -91,17 +92,17 @@ final class VersionChecker
         catch (MalformedURLException ex)
         {
             Log.error("Invalid master version file URL \"" + versionFileURL + "\"", ex);
-            return null;
+            return "invalid master version file URL \"" + versionFileURL + "\"";
         }
         catch (IOException ex)
         {
             Log.error("Failed to load master version file from URL \"" + versionFileURL + "\"", ex);
-            return null;
+            return "failed to load master version file from URL \"" + versionFileURL + "\"";
         }
         catch (JSONException ex)
         {
             Log.error("Malformed JSON in remote version file at URL \"" + versionFileURL + "\"", ex);
-            return null;
+            return "malformed JSON in remote version file at URL \"" + versionFileURL + "\"";
         }
     }
 
@@ -125,16 +126,16 @@ final class VersionChecker
     private static ModInfo checkForUpdate(final VersionFile localVersion)
     {
         // Download the master version file for this mod
-        VersionFile remoteVersion = getRemoteVersionFile(localVersion.getMasterURL());
+        final Object remoteVersion = getRemoteVersionFile(localVersion.getMasterURL());
 
-        // Return null master if downloading/parsing the master file failed
-        if (remoteVersion == null)
+        // Return null master and register error if downloading/parsing the master file failed
+        if (remoteVersion instanceof String)
         {
-            return new ModInfo(localVersion, null);
+            return new ModInfo(localVersion, (String) remoteVersion);
         }
 
         // Return a container for version files that lets us compare the two
-        return new ModInfo(localVersion, remoteVersion);
+        return new ModInfo(localVersion, (VersionFile) remoteVersion);
     }
 
     static Future<UpdateInfo> scheduleUpdateCheck(final List<VersionFile> localVersions)
@@ -318,7 +319,7 @@ final class VersionChecker
                 // Update check failed for some reason
                 if (tmp.failedUpdateCheck())
                 {
-                    results.addFailed(new ModInfo(tmp.getLocalVersion(), null));
+                    results.addFailed(tmp);
                 }
                 // Remote version is newer than local
                 else if (tmp.isUpdateAvailable())
