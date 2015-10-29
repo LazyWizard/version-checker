@@ -20,7 +20,6 @@ import com.fs.starfarer.api.campaign.OptionPanelAPI;
 import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.EngagementResultAPI;
-import org.apache.log4j.Level;
 import org.lazywizard.versionchecker.UpdateInfo.ModInfo;
 import org.lazywizard.versionchecker.UpdateInfo.VersionFile;
 import org.lwjgl.input.Keyboard;
@@ -124,8 +123,7 @@ final class UpdateNotificationScript implements EveryFrameScript
             }
             catch (InterruptedException | ExecutionException | TimeoutException ex)
             {
-                Global.getLogger(VersionChecker.class).log(Level.ERROR,
-                        "Failed to retrieve mod update info", ex);
+                Log.error("Failed to retrieve mod update info", ex);
                 ui.addMessage("Failed to retrieve mod update info!", Color.RED);
                 ui.addMessage("Check starsector.log for details.", Color.RED);
                 return;
@@ -317,8 +315,7 @@ final class UpdateNotificationScript implements EveryFrameScript
                     }
                     catch (IOException ex)
                     {
-                        Global.getLogger(VersionChecker.class).log(Level.ERROR,
-                                "Failed to launch browser: ", ex);
+                        Log.error("Failed to launch browser: ", ex);
                         text.addParagraph("Failed to launch browser: "
                                 + ex.getMessage(), Color.RED);
                     }
@@ -388,8 +385,7 @@ final class UpdateNotificationScript implements EveryFrameScript
                 }
                 catch (IOException ex)
                 {
-                    Global.getLogger(VersionChecker.class).log(Level.ERROR,
-                            "Failed to launch browser: ", ex);
+                    Log.error("Failed to launch browser: ", ex);
                     text.addParagraph("Failed to launch browser: "
                             + ex.getMessage(), Color.RED);
                 }

@@ -2,8 +2,6 @@ package org.lazywizard.versionchecker;
 
 import java.util.ArrayList;
 import java.util.List;
-import com.fs.starfarer.api.Global;
-import org.apache.log4j.Level;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -173,10 +171,6 @@ final class UpdateInfo
             {
                 return false;
             }
-
-            // DEBUG
-            Global.getLogger(VersionChecker.class).log(Level.DEBUG,
-                    modName + ": " + getVersion() + " vs " + other.getVersion());
 
             return (major < other.major)
                     || (major == other.major && minor < other.minor)

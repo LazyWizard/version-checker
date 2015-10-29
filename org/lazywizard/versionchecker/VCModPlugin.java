@@ -25,16 +25,14 @@ public final class VCModPlugin extends BaseModPlugin
         notificationKey = settings.optInt("summonUpdateNotificationKey", 47);
         checkSSVersion = settings.optBoolean("checkStarsectorVersion", true);
         VersionChecker.setMaxThreads(settings.optInt("maxUpdateThreads", 6));
-        Global.getLogger(VersionChecker.class).setLevel(
-                Level.toLevel(settings.optString("logLevel", "WARN")));
+        Log.setLevel(Level.toLevel(settings.optString("logLevel", "WARN")));
 
         final List<VersionFile> versionFiles = new ArrayList<>();
         final JSONArray csv = Global.getSettings().getMergedSpreadsheetDataForMod(
                 "version file", CSV_PATH, "lw_version_checker");
 
         final int numMods = csv.length();
-        Global.getLogger(VersionChecker.class).log(Level.INFO,
-                "Found " + numMods + " mods with version info");
+        Log.info("Found " + numMods + " mods with version info");
         for (int x = 0; x < numMods; x++)
         {
             JSONObject row = csv.getJSONObject(x);
@@ -60,7 +58,7 @@ public final class VCModPlugin extends BaseModPlugin
     }
 
     @Override
-    public void onGameLoad()
+    public void onGameLoad(boolean newGame)
     {
         if (script != null && !script.isDone())
         {
