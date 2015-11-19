@@ -21,7 +21,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.lazywizard.versionchecker.UpdateInfo.ModInfo;
 import org.lazywizard.versionchecker.UpdateInfo.VersionFile;
-import org.lwjgl.opengl.Display;
 
 // TEMP: runcode String path = (System.getProperty("user.dir")+"/"+System.getProperty("com.fs.starfarer.settings.paths.mods")); path = path.replace("\\\\", "\\").replace("\\","/");System.out.println(path);
 final class VersionChecker
@@ -291,7 +290,7 @@ final class VersionChecker
             {
                 try
                 {
-                    final String currentVanilla = Display.getTitle(),
+                    final String currentVanilla = Global.getSettings().getVersionString(),
                             latestVanilla = getLatestSSVersion();
                     Log.info("Local Starsector version is " + currentVanilla
                             + ", latest known is " + latestVanilla);

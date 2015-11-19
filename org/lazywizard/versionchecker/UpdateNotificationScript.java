@@ -396,9 +396,10 @@ final class UpdateNotificationScript implements EveryFrameScript
                     // Notify that update check failed
                     else if (ssUpdateError != null)
                     {
+                        final String curVersion = Global.getSettings().getVersionString();
                         text.addParagraph("Failed to retrieve latest Starsector version ("
-                                + ssUpdateError + "):\n - Current: " + Display.getTitle());
-                        text.highlightFirstInLastPara(Display.getTitle(), Color.RED);
+                                + ssUpdateError + "):\n - Current: " + curVersion);
+                        text.highlightFirstInLastPara(curVersion, Color.RED);
                         options.addOption("Go to Starsector announcement board", Menu.UPDATE_VANILLA);
                     }
 
