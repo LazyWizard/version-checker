@@ -1,4 +1,4 @@
- Version 1.4c (October XX, 2015)
+ Version 1.5 (November 19, 2015)
 =================================
 Updated to be compatible with Starsector 0.7a
 Local versions that are newer than the latest known are shown in cyan
