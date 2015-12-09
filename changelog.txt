@@ -1,3 +1,8 @@
+ Version 1.6 (December 08, 2015)
+=================================
+No longer requires modifications to vmparams/bat/shell script to function
+Only show remote version number if it differs from the local version
+
  Version 1.5 (November 19, 2015)
 =================================
 Updated to be compatible with Starsector 0.7a

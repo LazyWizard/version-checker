@@ -129,7 +129,7 @@ final class UpdateInfo
 
         public String getVersionString()
         {
-            if (remoteVersion == null)
+            if (remoteVersion == null || localVersion.isSame(remoteVersion))
             {
                 return localVersion.getVersion();
             }
@@ -163,6 +163,15 @@ final class UpdateInfo
             major = modVersion.optInt("major", 0);
             minor = modVersion.optInt("minor", 0);
             patch = modVersion.optString("patch", "0");
+        }
+
+        boolean isSame(VersionFile other)
+        {
+            if (other == null)
+                return false;
+
+            return (major == other.major && minor == other.minor
+                    && patch.equalsIgnoreCase(other.patch));
         }
 
         boolean isOlderThan(VersionFile other)
