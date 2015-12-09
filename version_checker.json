@@ -8,7 +8,7 @@
     "checkStarsectorVersion":true, # Default: true
 
     # The maximum number of separate threads to use when checking for updates
-    "maxUpdateThreads":6,
+    "maxUpdateThreads":8,
 
     # Valid levels: OFF, FATAL, ERROR, WARN, INFO, DEBUG, ALL
     "logLevel":"INFO"

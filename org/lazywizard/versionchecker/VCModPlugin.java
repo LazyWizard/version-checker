@@ -22,10 +22,10 @@ public final class VCModPlugin extends BaseModPlugin
     public void onApplicationLoad() throws Exception
     {
         final JSONObject settings = Global.getSettings().loadJSON(SETTINGS_FILE);
-        notificationKey = settings.optInt("summonUpdateNotificationKey", 47);
-        checkSSVersion = settings.optBoolean("checkStarsectorVersion", true);
-        VersionChecker.setMaxThreads(settings.optInt("maxUpdateThreads", 6));
-        Log.setLevel(Level.toLevel(settings.optString("logLevel", "WARN")));
+        notificationKey = settings.getInt("summonUpdateNotificationKey");
+        checkSSVersion = settings.getBoolean("checkStarsectorVersion");
+        VersionChecker.setMaxThreads(settings.getInt("maxUpdateThreads"));
+        Log.setLevel(Level.toLevel(settings.getString("logLevel"), Level.WARN));
 
         final List<VersionFile> versionFiles = new ArrayList<>();
         final JSONArray csv = Global.getSettings().getMergedSpreadsheetDataForMod(
