@@ -1,3 +1,7 @@
+ Version 1.7 (XX XX, 201X)
+===========================
+Added RecheckVersions command (only if Console Commands mod is installed)
+
  Version 1.6 (December 08, 2015)
 =================================
 No longer requires modifications to vmparams/bat/shell script to function
