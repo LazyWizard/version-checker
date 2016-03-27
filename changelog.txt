@@ -1,6 +1,7 @@
  Version 1.7 (XX XX, 201X)
 ===========================
 Added RecheckVersions command (only if Console Commands mod is installed)
+Fixed multi-digit patch/RC numbers being compared to single digits incorrectly
 
  Version 1.6 (December 08, 2015)
 =================================

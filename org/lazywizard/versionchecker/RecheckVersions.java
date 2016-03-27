@@ -19,7 +19,9 @@ public class RecheckVersions implements BaseCommand
                 {
                     plugin.onApplicationLoad();
 
-                    if (context.isInCampaign())
+                    if (context.isInCampaign() || (context.isInCombat()
+                            && (Global.getCombatEngine().isInCampaign()
+                            || Global.getCombatEngine().isInCampaignSim())))
                     {
                         Global.getSector().removeScriptsOfClass(UpdateNotificationScript.class);
                         plugin.onGameLoad(false);
