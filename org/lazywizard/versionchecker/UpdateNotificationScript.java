@@ -364,17 +364,20 @@ final class UpdateNotificationScript implements EveryFrameScript
                         text.highlightInLastPara(Color.YELLOW, info.getName(), " vs ");
                     }
 
-                    text.addParagraph((numFailed == 1)
-                            ? "There is 1 mod that failed its update check"
-                            : "There are " + numFailed + " mods that failed their update checks");
-                    text.highlightInLastPara((numFailed > 0 ? Color.RED
-                            : Color.GREEN), Integer.toString(numFailed));
-                    for (ModInfo info : failedCheck)
+                    if (numFailed > 0)
                     {
-                        text.addParagraph(wrap(" - " + info.getName() + " ("
-                                + info.getVersionString() + ", "
-                                + info.getErrorMessage() + ")"));
-                        text.highlightInLastPara(Color.RED, info.getName());
+                        text.addParagraph((numFailed == 1)
+                                ? "There is 1 mod that failed its update check"
+                                : "There are " + numFailed + " mods that failed their update checks");
+                        text.highlightInLastPara((numFailed > 0 ? Color.RED
+                                : Color.GREEN), Integer.toString(numFailed));
+                        for (ModInfo info : failedCheck)
+                        {
+                            text.addParagraph(wrap(" - " + info.getName() + " ("
+                                    + info.getVersionString() + ", "
+                                    + info.getErrorMessage() + ")"));
+                            text.highlightInLastPara(Color.RED, info.getName());
+                        }
                     }
 
                     dialog.setPromptText("Select a category for forum thread links:");
@@ -382,8 +385,12 @@ final class UpdateNotificationScript implements EveryFrameScript
                     options.setEnabled(Menu.LIST_NO_UPDATES, !hasNoUpdate.isEmpty());
                     options.addOption("List mods with updates", Menu.LIST_UPDATES);
                     options.setEnabled(Menu.LIST_UPDATES, !hasUpdate.isEmpty());
-                    options.addOption("List mods that failed update check", Menu.LIST_FAILED);
-                    options.setEnabled(Menu.LIST_FAILED, !failedCheck.isEmpty());
+
+                    // Only show this option if an update check has actually failed
+                    if (!failedCheck.isEmpty())
+                    {
+                        options.addOption("List mods that failed update check", Menu.LIST_FAILED);
+                    }
 
                     // Notify of game update if available
                     if (ssUpdate != null)
