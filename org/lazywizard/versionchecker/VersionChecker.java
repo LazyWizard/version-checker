@@ -238,8 +238,10 @@ final class VersionChecker
 
             // Assign array values to variables (solely for clarity's sake)
             final String vLocal = localRaw[0], vRemote = remoteRaw[0],
-                    rcLocal = (localRaw.length > 1 ? localRaw[1] : "0"),
-                    rcRemote = (remoteRaw.length > 1 ? remoteRaw[1] : "0");
+                    rcLocalRaw = (localRaw.length > 1 ? localRaw[1].replaceAll("\\D", "") : "0"),
+                    rcRemoteRaw = (remoteRaw.length > 1 ? remoteRaw[1].replaceAll("\\D", "") : "0");
+            final int rcLocal = (rcLocalRaw.isEmpty() ? 0 : Integer.parseInt(rcLocalRaw)),
+                    rcRemote = (rcRemoteRaw.isEmpty() ? 0 : Integer.parseInt(rcRemoteRaw));
 
             // Check major.minor versions to see if remote version is newer
             // Based on StackOverflow answer by Alex Gitelman found here:
@@ -273,7 +275,7 @@ final class VersionChecker
             }
 
             // Check release candidate if major.minor versions are the same
-            return (rcRemote.compareTo(rcLocal) > 0);
+            return (Integer.compare(rcRemote, rcLocal) > 0);
         }
 
         @Override

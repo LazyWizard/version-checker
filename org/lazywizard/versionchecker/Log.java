@@ -3,6 +3,7 @@ package org.lazywizard.versionchecker;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+// Minor utility class to ensure all logging is done under the same class
 class Log
 {
     private static final Logger Log = Logger.getLogger(VersionChecker.class);
