@@ -230,13 +230,14 @@ final class UpdateInfo
 
         private static String[] splitPatch(String patch)
         {
-            String digit = "", str = "";
+            final StringBuilder digit = new StringBuilder(patch.length());
+            String str = "";
             for (int i = 0; i < patch.length(); i++)
             {
                 final char ch = patch.charAt(i);
                 if (Character.isDigit(ch))
                 {
-                    digit += ch;
+                    digit.append(ch);
                 }
                 else
                 {
@@ -248,7 +249,7 @@ final class UpdateInfo
             //System.out.println(digit + " | " + str);
             return new String[]
             {
-                digit, str
+                digit.toString(), str
             };
         }
 
@@ -298,37 +299,5 @@ final class UpdateInfo
 
             return 1;
         }
-
-        /*private static void compare(String local, String remote)
-        {
-            final int comparison = comparePatch(local, remote);
-            final String result = (comparison == 0 ? " equals "
-                    : (comparison > 0 ? " is newer than " : " is older than "));
-            System.out.println(local + result + remote);
-        }
-
-        public static void main(String[] args)
-        {
-            final String[] versions = new String[]
-            {
-                "11a-rc1", "11a-rc2",
-                "9", "11",
-                "1.2.3.4","4.3.2.1",
-                "1234","4321",
-                "a1","b1",
-                "a1","a1a",
-                "a1","a2",
-                "5a1","5a2",
-                "5a1","5b1",
-                "9a","11a",
-                "11a","11b"
-            };
-
-            for (int i = 0; i < versions.length; i += 2)
-            {
-                compare(versions[i], versions[i + 1]);
-                compare(versions[i + 1], versions[i]);
-            }
-        }*/
     }
 }

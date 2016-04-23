@@ -6,6 +6,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
@@ -105,7 +106,7 @@ final class VersionChecker
         }
     }
 
-    private static String getLatestSSVersion() throws IOException
+    private static String getLatestSSVersion() throws IOException, NoSuchElementException
     {
         Log.info("Loading starsector update info from remote URL " + VANILLA_UPDATE_URL);
 
@@ -200,7 +201,13 @@ final class VersionChecker
                 "Starsector 0.65.1a-RC1",
                 "Starsector 0.65.2a-RC1",
                 "Starsector 0.7a-RC7",
-                "Starsector 0.7a-RC10"
+                "Starsector 0.7a-RC10",
+                "Starsector 0.7.1a-RC3",
+                "Starsector 0.7.1a-RC4",
+                "Starsector 0.7.1a-RC5",
+                "Starsector 0.7.2a-RC1",
+                "Starsector 0.7.2a-RC2",
+                "Starsector 0.7.2a-RC3"
             };
 
             // Proper order, all should be true
@@ -306,6 +313,12 @@ final class VersionChecker
                 catch (IOException ex)
                 {
                     Log.error("Failed to load vanilla update data from URL \""
+                            + VANILLA_UPDATE_URL + "\"", ex);
+                    results.setFailedSSError(ex.getClass().getSimpleName());
+                }
+                catch(Exception ex)
+                {
+                    Log.error("Failed to parse vanilla update data from URL \""
                             + VANILLA_UPDATE_URL + "\"", ex);
                     results.setFailedSSError(ex.getClass().getSimpleName());
                 }

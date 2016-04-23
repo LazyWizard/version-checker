@@ -115,6 +115,8 @@ final class UpdateNotificationScript implements EveryFrameScript
                 return;
             }
 
+            isUpdateCheckDone = true;
+
             // Attempt to retrieve the update results from the other thread
             try
             {
@@ -128,8 +130,6 @@ final class UpdateNotificationScript implements EveryFrameScript
                 ui.addMessage("Check starsector.log for details.", Color.RED);
                 return;
             }
-
-            isUpdateCheckDone = true;
         }
 
         // On first game load, warn about any updates available
