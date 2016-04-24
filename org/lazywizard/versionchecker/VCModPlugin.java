@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import com.fs.starfarer.api.BaseModPlugin;
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.ModSpecAPI;
 import org.apache.log4j.Level;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,12 +32,19 @@ public final class VCModPlugin extends BaseModPlugin
         final JSONArray csv = Global.getSettings().getMergedSpreadsheetDataForMod(
                 "version file", CSV_PATH, "lw_version_checker");
 
-        final int numMods = csv.length();
+        final int numMods = csv.length(),
+                csvPathLength = CSV_PATH.length() + 1;
+        final List<String> modPaths = new ArrayList<>(numMods);
         Log.info("Found " + numMods + " mods with version info");
         for (int x = 0; x < numMods; x++)
         {
-            JSONObject row = csv.getJSONObject(x);
-            String versionFile = row.getString("version file");
+            final JSONObject row = csv.getJSONObject(x);
+            final String versionFile = row.getString("version file");
+            final String source = row.optString("fs_rowSource", null);
+            if (source != null && source.length() > csvPathLength)
+            {
+                modPaths.add(source.substring(0, source.length() - csvPathLength));
+            }
 
             try
             {
@@ -50,9 +58,18 @@ public final class VCModPlugin extends BaseModPlugin
             }
         }
 
+        final List<ModSpecAPI> unsupportedMods = new ArrayList<>();
+        for (ModSpecAPI mod : Global.getSettings().getModManager().getEnabledModsCopy())
+        {
+            if (!modPaths.contains(mod.getPath()))
+            {
+                unsupportedMods.add(mod);
+            }
+        }
+
         if (!versionFiles.isEmpty())
         {
-            script = new UpdateNotificationScript(
+            script = new UpdateNotificationScript(unsupportedMods,
                     VersionChecker.scheduleUpdateCheck(versionFiles));
         }
     }

@@ -5,6 +5,7 @@ import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -13,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.ModSpecAPI;
 import com.fs.starfarer.api.campaign.CampaignUIAPI;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.InteractionDialogPlugin;
@@ -31,9 +33,12 @@ final class UpdateNotificationScript implements EveryFrameScript
     private boolean isUpdateCheckDone = false, hasWarned = false;
     private transient Future<UpdateInfo> futureUpdateInfo;
     private transient UpdateInfo updateInfo;
+    private transient List<ModSpecAPI> unsupportedMods;
 
-    UpdateNotificationScript(final Future<UpdateInfo> updateInfo)
+    UpdateNotificationScript(final List<ModSpecAPI> unsupportedMods,
+            final Future<UpdateInfo> updateInfo)
     {
+        this.unsupportedMods = unsupportedMods;
         this.futureUpdateInfo = updateInfo;
     }
 
@@ -53,7 +58,8 @@ final class UpdateNotificationScript implements EveryFrameScript
     {
         final int modsWithoutUpdates = updateInfo.getHasNoUpdate().size(),
                 modsWithUpdates = updateInfo.getHasUpdate().size(),
-                modsThatFailedUpdateCheck = updateInfo.getFailed().size();
+                modsThatFailedUpdateCheck = updateInfo.getFailed().size(),
+                modsRequiringManualCheck = unsupportedMods.size();
 
         // Display number of mods that are up-to-date
         if (modsWithoutUpdates > 0)
@@ -77,6 +83,15 @@ final class UpdateNotificationScript implements EveryFrameScript
             ui.addMessage("Update check failed for " + modsThatFailedUpdateCheck
                     + (modsThatFailedUpdateCheck == 1 ? " mod." : " mods."),
                     Integer.toString(modsThatFailedUpdateCheck), Color.RED);
+        }
+
+        // Display number of mods that require manual version checking
+        if (modsRequiringManualCheck > 0)
+        {
+            ui.addMessage("Manual version checking required for "
+                    + modsRequiringManualCheck + (modsRequiringManualCheck == 1
+                            ? " unsupported mod." : " unsupported mods."),
+                    Integer.toString(modsRequiringManualCheck), Color.YELLOW);
         }
 
         // Warn if a Starsector update is available
@@ -115,8 +130,6 @@ final class UpdateNotificationScript implements EveryFrameScript
                 return;
             }
 
-            isUpdateCheckDone = true;
-
             // Attempt to retrieve the update results from the other thread
             try
             {
@@ -128,8 +141,11 @@ final class UpdateNotificationScript implements EveryFrameScript
                 Log.error("Failed to retrieve mod update info", ex);
                 ui.addMessage("Failed to retrieve mod update info!", Color.RED);
                 ui.addMessage("Check starsector.log for details.", Color.RED);
+                Global.getSector().removeScript(this);
                 return;
             }
+
+            isUpdateCheckDone = true;
         }
 
         // On first game load, warn about any updates available
@@ -146,8 +162,8 @@ final class UpdateNotificationScript implements EveryFrameScript
         // User can press a key to summon a detailed update report
         if (Keyboard.isKeyDown(VCModPlugin.notificationKey))
         {
-            ui.showInteractionDialog(new UpdateNotificationDialog(updateInfo),
-                    Global.getSector().getPlayerFleet());
+            ui.showInteractionDialog(new UpdateNotificationDialog(
+                    updateInfo, unsupportedMods), Global.getSector().getPlayerFleet());
         }
     }
 
@@ -155,9 +171,12 @@ final class UpdateNotificationScript implements EveryFrameScript
     {
         private static final String ANNOUNCEMENT_BOARD
                 = "http://fractalsoftworks.com/forum/index.php?board=1.0";
+        private static final String MOD_INDEX_THREAD
+                = "http://fractalsoftworks.com/forum/index.php?topic=177.0";
         private static final int ENTRIES_PER_PAGE = 5, LINE_LENGTH = 45;
         private final String ssUpdate, ssUpdateError;
         private final List<ModInfo> hasUpdate, hasNoUpdate, failedCheck;
+        private final List<ModSpecAPI> unsupported;
         private InteractionDialogAPI dialog;
         private TextPanelAPI text;
         private OptionPanelAPI options;
@@ -168,6 +187,7 @@ final class UpdateNotificationScript implements EveryFrameScript
         {
             MAIN_MENU,
             UPDATE_VANILLA,
+            UPDATE_MANUALLY,
             LIST_UPDATES,
             LIST_NO_UPDATES,
             LIST_FAILED,
@@ -177,18 +197,27 @@ final class UpdateNotificationScript implements EveryFrameScript
             EXIT
         }
 
-        private UpdateNotificationDialog(UpdateInfo updateInfo)
+        private UpdateNotificationDialog(UpdateInfo updateInfo, List<ModSpecAPI> unsupported)
         {
             hasUpdate = updateInfo.getHasUpdate();
             hasNoUpdate = updateInfo.getHasNoUpdate();
             failedCheck = updateInfo.getFailed();
             ssUpdate = updateInfo.getSSUpdate();
             ssUpdateError = updateInfo.getFailedSSError();
+            this.unsupported = unsupported;
 
             // Sort by mod name
             Collections.sort(hasUpdate);
             Collections.sort(hasNoUpdate);
             Collections.sort(failedCheck);
+            Collections.sort(unsupported, new Comparator<ModSpecAPI>()
+            {
+                @Override
+                public int compare(ModSpecAPI o1, ModSpecAPI o2)
+                {
+                    return o1.getName().compareTo(o2.getName());
+                }
+            });
         }
 
         // Taken from LazyLib's StringUtils, still up-to-date as of LazyLib v2.1
@@ -337,7 +366,8 @@ final class UpdateNotificationScript implements EveryFrameScript
                     text.clear();
                     final int numUpToDate = hasNoUpdate.size(),
                      numHasUpdate = hasUpdate.size(),
-                     numFailed = failedCheck.size();
+                     numFailed = failedCheck.size(),
+                     numUnsupported = unsupported.size();
 
                     text.addParagraph((numUpToDate == 1)
                             ? "There is 1 up-to-date mod"
@@ -380,6 +410,21 @@ final class UpdateNotificationScript implements EveryFrameScript
                         }
                     }
 
+                    if (numUnsupported > 0)
+                    {
+                        text.addParagraph((numUnsupported == 1)
+                                ? "There is 1 unsupported mod enabled"
+                                : "There are " + numUnsupported + " unsupported mods enabled");
+                        text.highlightInLastPara((numUnsupported > 0 ? Color.YELLOW
+                                : Color.GREEN), Integer.toString(numUnsupported));
+                        for (ModSpecAPI mod : unsupported)
+                        {
+                            text.addParagraph(wrap(" - " + mod.getName() + " ("
+                                    + mod.getVersion() + ")"));
+                            text.highlightInLastPara(Color.YELLOW, mod.getName());
+                        }
+                    }
+
                     dialog.setPromptText("Select a category for forum thread links:");
                     options.addOption("List mods without updates", Menu.LIST_NO_UPDATES);
                     options.setEnabled(Menu.LIST_NO_UPDATES, !hasNoUpdate.isEmpty());
@@ -390,6 +435,12 @@ final class UpdateNotificationScript implements EveryFrameScript
                     if (!failedCheck.isEmpty())
                     {
                         options.addOption("List mods that failed update check", Menu.LIST_FAILED);
+                    }
+
+                    // Only show this option if an unsupported mod is enabled
+                    if (!unsupported.isEmpty())
+                    {
+                        options.addOption("Go to mod index forum thread", Menu.UPDATE_MANUALLY);
                     }
 
                     // Notify of game update if available
@@ -413,6 +464,21 @@ final class UpdateNotificationScript implements EveryFrameScript
                     options.addOption("Exit", Menu.EXIT);
                     options.setShortcut(Menu.EXIT, Keyboard.KEY_ESCAPE,
                             false, false, false, true);
+                    break;
+                case UPDATE_MANUALLY:
+                    goToMenu(Menu.MAIN_MENU);
+                    text.addParagraph("Opening mod index thread...");
+                    options.setEnabled(Menu.UPDATE_MANUALLY, false);
+                    try
+                    {
+                        Desktop.getDesktop().browse(URI.create(MOD_INDEX_THREAD));
+                    }
+                    catch (IOException ex)
+                    {
+                        Log.error("Failed to launch browser: ", ex);
+                        text.addParagraph("Failed to launch browser: "
+                                + ex.getMessage(), Color.RED);
+                    }
                     break;
                 case UPDATE_VANILLA:
                     goToMenu(Menu.MAIN_MENU);
