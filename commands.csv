@@ -1,2 +1,2 @@
 command,class,tags,syntax,help
-RecheckVersions,org.lazywizard.versionchecker.RecheckVersions,"versioncheker,campaign,combat",recheckversions (no arguments),"Rechecks all supported mods for updates."
+RecheckVersions,org.lazywizard.versionchecker.RecheckVersions,"versionchecker,campaign,combat",recheckversions (no arguments),"Rechecks all supported mods for updates."
