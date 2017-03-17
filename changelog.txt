@@ -1,7 +1,14 @@
- Version 1.7 (XX XX, 201X)
-===========================
-Added RecheckVersions command (only if Console Commands mod is installed)
-Fixed multi-digit patch/RC numbers being compared to single digits incorrectly
+ Version 1.7 (March 16, 2017)
+==============================
+Switched version file hosting to Bitbucket
+New features:
+ - Added RecheckVersions command (only if Console Commands mod is installed)
+ - Mods that don't support Version Checker are now shown in the notification
+   dialog along with their current version and a link to the forum's Mod Index
+   so you can manually check for updates
+Bug fixes:
+ - Fixed comparison of multi-digit patch/RC numbers to single digit ones
+ - Fixed spam if an update check failed with an unchecked exception
 
  Version 1.6 (December 08, 2015)
 =================================

@@ -280,8 +280,8 @@ final class UpdateInfo
         {
             if (other == null)
             {
-                // TODO: Remove this before releasing! Only here because I honestly can't remember when other will be null
-                throw new RuntimeException("Other was null for " + getName());
+                // Assume there's an update if something went wrong
+                return -1;
             }
 
             if (major == other.major && minor == other.minor
