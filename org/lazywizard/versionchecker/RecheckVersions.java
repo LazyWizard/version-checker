@@ -14,11 +14,12 @@ public class RecheckVersions implements BaseCommand
         {
             if (tmp instanceof VCModPlugin)
             {
-                VCModPlugin plugin = (VCModPlugin) tmp;
+                final VCModPlugin plugin = (VCModPlugin) tmp;
                 try
                 {
                     plugin.onApplicationLoad();
 
+                    // TODO: Replace with context.isCampaignAccessible() after next console release
                     if (context.isInCampaign() || (context.isInCombat()
                             && (Global.getCombatEngine().isInCampaign()
                             || Global.getCombatEngine().isInCampaignSim())))

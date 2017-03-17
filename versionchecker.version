@@ -8,17 +8,13 @@
     # - Permanently linked and editable without the URL itself changing
     #
     # Bitbucket, GitHub, and other online repositories make excellent hosts.
-    # If you have a Dropbox account that's a few years old, that will also work.
-    # Just make sure it is in your Public folder and that you get the URL by
-    # right-clicking and selecting "Copy public link". Free Dropbox accounts
-    # created after October 2012 will not have a Public folder, unfortunately.
     #
     # Example links for common hosts:
-    #"masterVersionFile":"https://bitbucket.org/LazyWizard/version-checker/raw/tip/versionchecker.version",
-    #"masterVersionFile":"https://bitbucket.org/LazyWizard/version-checker/downloads/versionchecker.version",
     #"masterVersionFile":"https://github.com/LazyWizard/VersionChecker/blob/master/versionchecker.version",
     #"masterVersionFile":"https://github.com/LazyWizard/VersionChecker/releases/download/0.1/versionchecker.version",
-    "masterVersionFile":"https://dl.dropboxusercontent.com/u/32722116/Version%20Files/versionchecker.version",
+    #"masterVersionFile":"https://bitbucket.org/LazyWizard/version-checker/raw/tip/versionchecker.version",
+    "masterVersionFile":"https://bitbucket.org/LazyWizard/version-checker/downloads/versionchecker.version",
+    # The name that is displayed in-game for your mod
     "modName":"Version Checker",
     # The ID of the thread where updates to this mod can be found (optional).
     # This is used to launch directly to the forum thread from in the game.
@@ -26,7 +22,7 @@
     # For example: fractalsoftworks.com/forum/index.php?topic=8181.0 has an ID of 8181
     "modThreadId":8181,
     # The current patch number
-    # Notation is major.minor.patch, trailing zeros are ignored
+    # Notation is major.minor.patch; trailing zeros are ignored
     # This means version 2.1.0 shows up as v2.1, version 4.0.0 as v4, etc
     # If you use major.minor notation you can just leave patch as 0
     "modVersion":

@@ -20,6 +20,8 @@ public final class VCModPlugin extends BaseModPlugin
     static int notificationKey;
 
     @Override
+    // Note: if there's any significant change to how this function works,
+    // the RecheckVersions console command will need to be updated as well
     public void onApplicationLoad() throws Exception
     {
         final JSONObject settings = Global.getSettings().loadJSON(SETTINGS_FILE);
