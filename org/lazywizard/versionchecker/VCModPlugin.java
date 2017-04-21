@@ -1,5 +1,7 @@
 package org.lazywizard.versionchecker;
 
+import java.io.IOException;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import com.fs.starfarer.api.BaseModPlugin;
@@ -24,6 +26,11 @@ public final class VCModPlugin extends BaseModPlugin
     // the RecheckVersions console command will need to be updated as well
     public void onApplicationLoad() throws Exception
     {
+        // Disable URL caching
+        new URLConnection(null){
+            @Override public void connect() throws IOException { }
+        }.setDefaultUseCaches(false);
+
         final JSONObject settings = Global.getSettings().loadJSON(SETTINGS_FILE);
         notificationKey = settings.getInt("summonUpdateNotificationKey");
         checkSSVersion = settings.getBoolean("checkStarsectorVersion");
