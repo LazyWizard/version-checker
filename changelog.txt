@@ -1,3 +1,7 @@
+ Version 1.7b (April 21, 2017)
+===============================
+Updated to be compatible with Starsector 0.8a
+
  Version 1.7 (March 16, 2017)
 ==============================
 Switched version file hosting to Bitbucket
