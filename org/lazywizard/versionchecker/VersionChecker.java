@@ -207,7 +207,12 @@ final class VersionChecker
                 "Starsector 0.7.1a-RC5",
                 "Starsector 0.7.2a-RC1",
                 "Starsector 0.7.2a-RC2",
-                "Starsector 0.7.2a-RC3"
+                "Starsector 0.7.2a-RC3",
+                "Starsector 0.8a-RC17",
+                "Starsector 0.8a-RC18",
+                "Starsector 0.8a-RC19",
+                "Starsector 0.8.1a-RC5",
+                "Starsector 0.8.1a-RC6"
             };
 
             // Proper order, all should be true
