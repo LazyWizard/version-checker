@@ -1,7 +1,7 @@
 package org.lazywizard.versionchecker;
 
-import java.awt.Color;
-import java.awt.Desktop;
+import java.awt.*;
+import java.awt.datatransfer.StringSelection;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
@@ -12,6 +12,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.ModSpecAPI;
@@ -551,9 +552,21 @@ final class UpdateNotificationScript implements EveryFrameScript
             // Option was version data? Launch that mod's forum thread
             else if (optionData instanceof VersionFile)
             {
+                final VersionFile info = (VersionFile) optionData;
+
+                // Some flavors of Linux don't support the Desktop API without certain libraries installed
+                if (!Desktop.isDesktopSupported())
+                {
+                    final StringSelection modUrl = new StringSelection(info.getThreadURL());
+                    Toolkit.getDefaultToolkit().getSystemClipboard().setContents(modUrl, modUrl);
+                    text.addParagraph("Opening the browser directly is not supported on this OS!\n" +
+                            "The forum thread URL has been copied to the clipboard instead.");
+                    return;
+                }
+
+                // Open the mod forum thread in the user's default browser
                 try
                 {
-                    VersionFile info = (VersionFile) optionData;
                     text.addParagraph("Opening " + info.getName() + " forum thread...");
                     options.setEnabled(info, false);
                     Desktop.getDesktop().browse(URI.create(info.getThreadURL()));
