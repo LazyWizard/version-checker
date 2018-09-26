@@ -27,7 +27,7 @@ public final class VCModPlugin extends BaseModPlugin
         try
         {
             final JSONObject modInfo = Global.getSettings().loadJSON("mod_info.json", mod.getId());
-            return modInfo.optBoolean("versionCheckerIgnore", false);
+            return modInfo.optBoolean("suppressVCUnsupported", false);
         }
         catch (Exception ex)
         {
