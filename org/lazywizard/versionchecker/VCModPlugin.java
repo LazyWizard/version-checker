@@ -1,9 +1,5 @@
 package org.lazywizard.versionchecker;
 
-import java.io.IOException;
-import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.List;
 import com.fs.starfarer.api.BaseModPlugin;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.ModSpecAPI;
@@ -13,6 +9,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.lazywizard.versionchecker.UpdateInfo.VersionFile;
 
+import java.io.IOException;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.List;
+
 public final class VCModPlugin extends BaseModPlugin
 {
     private static final String SETTINGS_FILE = "data/config/version/version_checker.json";
@@ -21,9 +22,23 @@ public final class VCModPlugin extends BaseModPlugin
     static boolean checkSSVersion = false;
     static int notificationKey;
 
-    @Override
+    private static boolean isIgnored(ModSpecAPI mod)
+    {
+        try
+        {
+            final JSONObject modInfo = Global.getSettings().loadJSON("mod_info.json", mod.getId());
+            return modInfo.optBoolean("versionCheckerIgnore", false);
+        }
+        catch (Exception ex)
+        {
+            Log.error("Failed to load mod_info.json for mod " + mod.getId(), ex);
+            return false;
+        }
+    }
+
     // Note: if there's any significant change to how this function works,
     // the RecheckVersions console command will need to be updated as well
+    @Override
     public void onApplicationLoad() throws Exception
     {
         // Disable URL caching
@@ -70,7 +85,7 @@ public final class VCModPlugin extends BaseModPlugin
         final List<ModSpecAPI> unsupportedMods = new ArrayList<>();
         for (ModSpecAPI mod : Global.getSettings().getModManager().getEnabledModsCopy())
         {
-            if (!modPaths.contains(mod.getPath()))
+            if (!modPaths.contains(mod.getPath()) && !isIgnored(mod))
             {
                 unsupportedMods.add(mod);
             }
