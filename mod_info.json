@@ -3,9 +3,9 @@
     "name": "Version Checker",
     "author": "LazyWizard",
     "utility": "true",
-    "version": "1.7c",
+    "version": "1.8",
     "description": "Tells you whether Starsector or any of your mods have updates available. A mod must include a .version file and an entry in data/config/version/version_files.csv for this to work with them.",
-    "gameVersion": "0.8a",
+    "gameVersion": "0.9a",
     "jars":["jars/lw_VersionChecker.jar"],
     "modPlugin": "org.lazywizard.versionchecker.VCModPlugin"
 }

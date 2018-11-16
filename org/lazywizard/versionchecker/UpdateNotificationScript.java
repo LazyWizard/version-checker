@@ -1,5 +1,16 @@
 package org.lazywizard.versionchecker;
 
+import com.fs.starfarer.api.EveryFrameScript;
+import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.ModSpecAPI;
+import com.fs.starfarer.api.campaign.*;
+import com.fs.starfarer.api.campaign.rules.MemoryAPI;
+import com.fs.starfarer.api.combat.EngagementResultAPI;
+import org.lazywizard.versionchecker.UpdateInfo.ModInfo;
+import org.lazywizard.versionchecker.UpdateInfo.VersionFile;
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.opengl.Display;
+
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.io.IOException;
@@ -8,25 +19,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
-import com.fs.starfarer.api.EveryFrameScript;
-import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.ModSpecAPI;
-import com.fs.starfarer.api.campaign.CampaignUIAPI;
-import com.fs.starfarer.api.campaign.InteractionDialogAPI;
-import com.fs.starfarer.api.campaign.InteractionDialogPlugin;
-import com.fs.starfarer.api.campaign.OptionPanelAPI;
-import com.fs.starfarer.api.campaign.TextPanelAPI;
-import com.fs.starfarer.api.campaign.rules.MemoryAPI;
-import com.fs.starfarer.api.combat.EngagementResultAPI;
-import org.lazywizard.versionchecker.UpdateInfo.ModInfo;
-import org.lazywizard.versionchecker.UpdateInfo.VersionFile;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.Display;
 
 final class UpdateNotificationScript implements EveryFrameScript
 {
@@ -37,7 +31,7 @@ final class UpdateNotificationScript implements EveryFrameScript
     private transient List<ModSpecAPI> unsupportedMods;
 
     UpdateNotificationScript(final List<ModSpecAPI> unsupportedMods,
-            final Future<UpdateInfo> updateInfo)
+                             final Future<UpdateInfo> updateInfo)
     {
         this.unsupportedMods = unsupportedMods;
         this.futureUpdateInfo = updateInfo;
@@ -66,40 +60,40 @@ final class UpdateNotificationScript implements EveryFrameScript
         if (modsWithoutUpdates > 0)
         {
             ui.addMessage(modsWithoutUpdates + (modsWithoutUpdates == 1
-                    ? " mod is" : " mods are") + " up to date.",
-                    Integer.toString(modsWithoutUpdates), Color.GREEN);
+                            ? " mod is" : " mods are") + " up to date.", Color.WHITE,
+                    Integer.toString(modsWithoutUpdates), "", Color.GREEN, Color.BLACK);
         }
 
         // Display number of mods with an update available
         if (modsWithUpdates > 0)
         {
             ui.addMessage("Found updates for " + modsWithUpdates
-                    + (modsWithUpdates == 1 ? " mod." : " mods."),
-                    Integer.toString(modsWithUpdates), Color.YELLOW);
+                            + (modsWithUpdates == 1 ? " mod." : " mods."), Color.WHITE,
+                    Integer.toString(modsWithUpdates), "", Color.YELLOW, Color.BLACK);
         }
 
         // Display number of mods that failed the update check
         if (modsThatFailedUpdateCheck > 0)
         {
             ui.addMessage("Update check failed for " + modsThatFailedUpdateCheck
-                    + (modsThatFailedUpdateCheck == 1 ? " mod." : " mods."),
-                    Integer.toString(modsThatFailedUpdateCheck), Color.RED);
+                            + (modsThatFailedUpdateCheck == 1 ? " mod." : " mods."), Color.WHITE,
+                    Integer.toString(modsThatFailedUpdateCheck), "", Color.RED, Color.BLACK);
         }
 
         // Display number of mods that require manual version checking
         if (modsRequiringManualCheck > 0)
         {
             ui.addMessage("Manual version checking required for "
-                    + modsRequiringManualCheck + (modsRequiringManualCheck == 1
-                            ? " unsupported mod." : " unsupported mods."),
-                    Integer.toString(modsRequiringManualCheck), Color.YELLOW);
+                            + modsRequiringManualCheck + (modsRequiringManualCheck == 1
+                            ? " unsupported mod." : " unsupported mods."), Color.WHITE,
+                    Integer.toString(modsRequiringManualCheck), "", Color.YELLOW, Color.BLACK);
         }
 
         // Warn if a Starsector update is available
         if (updateInfo.getSSUpdate() != null)
         {
-            ui.addMessage("There is a game update available: "
-                    + updateInfo.getSSUpdate(), updateInfo.getSSUpdate(), Color.YELLOW);
+            ui.addMessage("There is a game update available: " + updateInfo.getSSUpdate(), Color.WHITE,
+                    updateInfo.getSSUpdate(), "", Color.YELLOW, Color.BLACK);
         }
         else if (updateInfo.getFailedSSError() != null)
         {
@@ -108,8 +102,8 @@ final class UpdateNotificationScript implements EveryFrameScript
         }
 
         String keyName = Keyboard.getKeyName(VCModPlugin.notificationKey);
-        ui.addMessage("Press " + keyName + " for detailed update information.",
-                keyName, Color.CYAN);
+        ui.addMessage("Press " + keyName + " for detailed update information.", Color.WHITE,
+                keyName, "", Color.CYAN, Color.BLACK);
     }
 
     @Override
@@ -137,7 +131,7 @@ final class UpdateNotificationScript implements EveryFrameScript
                 updateInfo = futureUpdateInfo.get(1l, TimeUnit.SECONDS);
                 futureUpdateInfo = null;
             }
-            catch (InterruptedException | ExecutionException | TimeoutException ex)
+            catch (Exception ex)
             {
                 Log.error("Failed to retrieve mod update info", ex);
                 ui.addMessage("Failed to retrieve mod update info!", Color.RED);
@@ -366,9 +360,9 @@ final class UpdateNotificationScript implements EveryFrameScript
                 case MAIN_MENU:
                     text.clear();
                     final int numUpToDate = hasNoUpdate.size(),
-                     numHasUpdate = hasUpdate.size(),
-                     numFailed = failedCheck.size(),
-                     numUnsupported = unsupported.size();
+                            numHasUpdate = hasUpdate.size(),
+                            numFailed = failedCheck.size(),
+                            numUnsupported = unsupported.size();
 
                     text.addParagraph((numUpToDate == 1)
                             ? "There is 1 up-to-date mod"
@@ -535,7 +529,8 @@ final class UpdateNotificationScript implements EveryFrameScript
             this.options = dialog.getOptionPanel();
             this.text = dialog.getTextPanel();
 
-            dialog.setTextWidth(Display.getWidth() * .9f);
+            dialog.hideVisualPanel();
+            //dialog.setTextWidth(Display.getWidth() * .9f);
             goToMenu(Menu.MAIN_MENU);
         }
 
@@ -571,7 +566,7 @@ final class UpdateNotificationScript implements EveryFrameScript
                     options.setEnabled(info, false);
                     Desktop.getDesktop().browse(URI.create(info.getThreadURL()));
                 }
-                catch (IOException ex)
+                catch (Exception ex)
                 {
                     Log.error("Failed to launch browser: ", ex);
                     text.addParagraph("Failed to launch browser: "
