@@ -41,9 +41,13 @@ public final class VCModPlugin extends BaseModPlugin
     @Override
     public void onApplicationLoad() throws Exception
     {
-        // Disable URL caching
-        new URLConnection(null){
-            @Override public void connect() throws IOException { }
+        // Disable URL caching - fixes an issue with re-uploaded BitBucket files
+        new URLConnection(null)
+        {
+            @Override
+            public void connect() throws IOException
+            {
+            }
         }.setDefaultUseCaches(false);
 
         final JSONObject settings = Global.getSettings().loadJSON(SETTINGS_FILE);

@@ -1,3 +1,9 @@
+ Version 1.8 (November 16, 2018)
+=================================
+Updated to be compatible with Starsector 0.9a
+Added support for "suppressVCUnsupported" tag in a mod's mod_info.json
+Fixed crash when clicking forum links on some Linux distros
+
  Version 1.7c (April 21, 2017)
 ===============================
 Disabled Java URL caching (fixes a minor Bitbucket version file hosting issue)
