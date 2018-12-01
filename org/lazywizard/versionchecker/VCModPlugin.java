@@ -50,6 +50,9 @@ public final class VCModPlugin extends BaseModPlugin
             }
         }.setDefaultUseCaches(false);
 
+        // Enable TLS v1.2 (required to use Bitbucket past December 1st, 2018)
+        System.setProperty("https.protocols", "SSLv3,TLSv1,TLSv1.1,TLSv1.2");
+
         final JSONObject settings = Global.getSettings().loadJSON(SETTINGS_FILE);
         notificationKey = settings.getInt("summonUpdateNotificationKey");
         checkSSVersion = settings.getBoolean("checkStarsectorVersion");

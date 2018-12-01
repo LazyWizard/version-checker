@@ -1,3 +1,7 @@
+ Version 1.8b (December 1, 2018)
+=================================
+Fixed Bitbucket connection issue (enabled TLS v1.2)
+
  Version 1.8 (November 16, 2018)
 =================================
 Updated to be compatible with Starsector 0.9a
