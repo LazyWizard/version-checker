@@ -22,7 +22,7 @@ public class RecheckVersions implements BaseCommand
                     // Remove any existing notification plugin and replace with the newly created one
                     if (context.isCampaignAccessible())
                     {
-                        Global.getSector().removeScriptsOfClass(UpdateNotificationScript.class);
+                        Global.getSector().removeTransientScriptsOfClass(UpdateNotificationScript.class);
                         plugin.onGameLoad(false);
                     }
 
