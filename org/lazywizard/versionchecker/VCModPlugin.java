@@ -19,7 +19,7 @@ public final class VCModPlugin extends BaseModPlugin
     private static final String SETTINGS_FILE = "data/config/version/version_checker.json";
     private static final String CSV_PATH = "data/config/version/version_files.csv";
     private static UpdateNotificationScript script = null;
-    static boolean checkSSVersion = false;
+    static boolean checkSSVersion = false, preferNexus = false;
     static int notificationKey;
 
     private static boolean isIgnored(ModSpecAPI mod)
@@ -56,6 +56,7 @@ public final class VCModPlugin extends BaseModPlugin
         final JSONObject settings = Global.getSettings().loadJSON(SETTINGS_FILE);
         notificationKey = settings.getInt("summonUpdateNotificationKey");
         checkSSVersion = settings.getBoolean("checkStarsectorVersion");
+        preferNexus = settings.getBoolean("preferNexusLinks");
         VersionChecker.setMaxThreads(settings.getInt("maxUpdateThreads"));
         Log.setLevel(Level.toLevel(settings.getString("logLevel"), Level.WARN));
 
