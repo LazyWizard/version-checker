@@ -1,3 +1,16 @@
+ Version 2.0 (March 19, 2019)
+==============================
+Added "nexusModId" field to .version file format:
+ - Optional field, adds support for nexusmods.com
+ - ID is an integer, and should be the mod ID in the Nexus mod page's URL
+   Ex: https://www.nexusmods.com/starsector/mods/3 has an ID of 3
+Added "preferNexusLinks" to data/config/version/version_checker.json:
+ - When true, will open a mod's Nexus page instead of its forum thread,
+   provided it has one listed in its .version file
+Added an option that opens threads for all updatable mods in one click
+Fixed RecheckVersions command not updating the version info dialog
+Fixed message spam when a user's connection drops during an update check
+
  Version 1.8b (December 1, 2018)
 =================================
 Fixed Bitbucket connection issue (enabled TLS v1.2)
