@@ -1,3 +1,7 @@
+ Version 2.0b (August 28, 2020)
+================================
+Moved version file hosting from Bitbucket to GitHub
+
  Version 2.0 (March 19, 2019)
 ==============================
 Added "nexusModId" field to .version file format:

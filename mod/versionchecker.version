@@ -1,5 +1,5 @@
 {
-    # Points toward the online master .version file. This mod works by comparing
+    # Points toward the master .version file online. This mod works by comparing
     # the local and online version to see if there is a newer version available.
     #
     # The master file must be:
@@ -7,13 +7,12 @@
     # - Directly reachable (the URL goes to the raw file, not a redirect page)
     # - Permanently linked and editable without the URL itself changing
     #
-    # Bitbucket, GitHub, and other online repositories make excellent hosts.
+    # GitHub and other online repositories make excellent hosts (with the
+    # exception of Bitbucket, connections to which require cryptographic ciphers
+    # that the JRE that ships with Starsector does not include).
     #
-    # Example links for common hosts:
-    #"masterVersionFile":"https://github.com/LazyWizard/VersionChecker/blob/master/versionchecker.version",
-    #"masterVersionFile":"https://github.com/LazyWizard/VersionChecker/releases/download/0.1/versionchecker.version",
-    #"masterVersionFile":"https://bitbucket.org/LazyWizard/version-checker/raw/tip/versionchecker.version",
-    "masterVersionFile":"https://bitbucket.org/LazyWizard/version-checker/downloads/versionchecker.version",
+    # A link to the raw .version JSON data
+    "masterVersionFile":"https://raw.githubusercontent.com/LazyWizard/version-checker/master/mod/versionchecker.version",
     # The name that is displayed in-game for your mod
     "modName":"Version Checker",
     # The ID of the thread where updates to this mod can be found (optional).
@@ -34,6 +33,6 @@
     {
         "major":2,
         "minor":0,
-        "patch":0 # Can be a number, character or string (1, 2, a, b, "-RC2", etc)
+        "patch":b # Can be a number, character or string (1, 2, a, b, "-RC2", etc)
     }
 }

@@ -16,11 +16,10 @@ import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.concurrent.*;
 
-// TEMP: runcode String path = (System.getProperty("user.dir")+"/"+System.getProperty("com.fs.starfarer.settings.paths.mods")); path = path.replace("\\\\", "\\").replace("\\","/");System.out.println(path);
 final class VersionChecker
 {
     private static final String VANILLA_UPDATE_URL
-            = "https://bitbucket.org/LazyWizard/version-checker/downloads/vanilla.txt";
+            = "https://raw.githubusercontent.com/LazyWizard/version-checker/master/vanilla.txt";
     private static int MAX_THREADS = 12;
 
     static void setMaxThreads(int maxThreads)
@@ -32,7 +31,7 @@ final class VersionChecker
     {
         StringBuilder result = new StringBuilder(rawJSON.length());
 
-        // Remove elements that default JSON implementation can't parse
+        // Remove elements that the default JSON implementation can't parse
         for (final String str : rawJSON.split("\n"))
         {
             // Strip out whole-line comments
@@ -80,7 +79,6 @@ final class VersionChecker
              Scanner scanner = new Scanner(stream, "UTF-8").useDelimiter("\\A"))
         {
             return new VersionFile(sanitizeJSON(scanner.next()), true);
-
         }
         catch (MalformedURLException ex)
         {

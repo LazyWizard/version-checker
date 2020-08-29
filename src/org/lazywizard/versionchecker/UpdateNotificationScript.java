@@ -112,7 +112,7 @@ final class UpdateNotificationScript implements EveryFrameScript
     {
         // Don't do anything while in a menu/dialog
         CampaignUIAPI ui = Global.getSector().getCampaignUI();
-        if (Global.getSector().isInNewGameAdvance() || ui.isShowingDialog())
+        if (Global.getSector().isInNewGameAdvance() || ui.isShowingDialog() || ui.isShowingMenu())
         {
             return;
         }

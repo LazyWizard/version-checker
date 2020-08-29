@@ -1,6 +1,5 @@
 # Default ignored files
 /workspace.xml
-
+sonarlint/
 # Project exclude paths
 /.
-
