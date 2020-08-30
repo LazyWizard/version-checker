@@ -372,8 +372,9 @@ final class UpdateNotificationScript implements EveryFrameScript
                             numUnsupported = unsupported.size();
 
                     text.addParagraph((numUpToDate == 1)
-                            ? "There is 1 up-to-date mod"
-                            : "There are " + numUpToDate + " up-to-date mods");
+                            ? "There is 1 up-to-date mod."
+                            : "There are " + numUpToDate + " up-to-date mods" +
+                            (numUpToDate == 0 ? "." : ":"));
                     text.highlightInLastPara(Color.GREEN,
                             Integer.toString(numUpToDate));
                     for (ModInfo info : hasNoUpdate)
@@ -385,8 +386,9 @@ final class UpdateNotificationScript implements EveryFrameScript
                     }
 
                     text.addParagraph((numHasUpdate == 1)
-                            ? "There is 1 mod with an update available"
-                            : "There are " + numHasUpdate + " mods with updates available");
+                            ? "There is 1 mod with an update available:"
+                            : "There are " + numHasUpdate + " mods with updates available" +
+                            (numHasUpdate == 0 ? "." : ":"));
                     text.highlightInLastPara((numHasUpdate > 0 ? Color.YELLOW
                             : Color.GREEN), Integer.toString(numHasUpdate));
                     for (ModInfo info : hasUpdate)
@@ -399,8 +401,8 @@ final class UpdateNotificationScript implements EveryFrameScript
                     if (numFailed > 0)
                     {
                         text.addParagraph((numFailed == 1)
-                                ? "There is 1 mod that failed its update check"
-                                : "There are " + numFailed + " mods that failed their update checks");
+                                ? "There is 1 mod that failed its update check:"
+                                : "There are " + numFailed + " mods that failed their update checks:");
                         text.highlightInLastPara((numFailed > 0 ? Color.RED
                                 : Color.GREEN), Integer.toString(numFailed));
                         for (ModInfo info : failedCheck)
@@ -415,8 +417,8 @@ final class UpdateNotificationScript implements EveryFrameScript
                     if (numUnsupported > 0)
                     {
                         text.addParagraph((numUnsupported == 1)
-                                ? "There is 1 unsupported mod enabled"
-                                : "There are " + numUnsupported + " unsupported mods enabled");
+                                ? "There is 1 unsupported mod enabled:"
+                                : "There are " + numUnsupported + " unsupported mods enabled:");
                         text.highlightInLastPara((numUnsupported > 0 ? Color.YELLOW
                                 : Color.GREEN), Integer.toString(numUnsupported));
                         for (ModSpecAPI mod : unsupported)
@@ -474,6 +476,11 @@ final class UpdateNotificationScript implements EveryFrameScript
                                 + ssUpdateError + "):\n - Current: " + curVersion);
                         text.highlightFirstInLastPara(curVersion, Color.RED);
                         options.addOption("Go to Starsector announcement board", Menu.UPDATE_VANILLA);
+                    }
+                    // No Starsector update detected
+                    else
+                    {
+                        text.addParagraph("Starsector is up-to-date.", Color.GREEN);
                     }
 
                     options.addOption("Exit", Menu.EXIT);
