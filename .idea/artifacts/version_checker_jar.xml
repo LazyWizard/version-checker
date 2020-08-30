@@ -3,6 +3,7 @@
     <output-path>$STARSECTOR_INSTALL_DIR$/mods/Version Checker/jars</output-path>
     <root id="archive" name="lw_VersionChecker.jar">
       <element id="module-output" name="version-checker" />
+      <element id="dir-copy" path="$PROJECT_DIR$/src" />
     </root>
   </artifact>
 </component>
