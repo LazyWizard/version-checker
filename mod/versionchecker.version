@@ -13,18 +13,22 @@
     #
     # A link to the raw .version JSON data
     "masterVersionFile":"https://raw.githubusercontent.com/LazyWizard/version-checker/master/mod/versionchecker.version",
+    
     # The name that is displayed in-game for your mod
     "modName":"Version Checker",
+    
     # The ID of the thread where updates to this mod can be found (optional).
     # This is used to launch directly to the forum thread from in the game.
     # The ID is the set of digits at the end of the forum thread URL before the dot.
     # For example: https://fractalsoftworks.com/forum/index.php?topic=8181.0 has a modThreadId of 8181
     "modThreadId":8181,
+    
     # The ID of the NexusMods page for this mod (optional)
     # This is used to launch directly to the NexusMods page from in the game.
     # The ID is the number at the end of the mod's NexusMods page's URL
     # For example: https://www.nexusmods.com/starsector/mods/3 has a modNexusId of 3
     "modNexusId":3,
+    
     # The current patch number
     # Notation is major.minor.patch; trailing zeros are ignored
     # This means version 2.1.0 shows up as v2.1, version 4.0.0 as v4, etc
@@ -34,5 +38,18 @@
         "major":2,
         "minor":0,
         "patch":b # Can be a number, character or string (1, 2, a, b, "-RC2", etc)
-    }
+    },
+    
+    ###################################################################################
+    # THE FOLLOWING FIELDS ARE OPTIONAL AND USED BY LUNALIB'S BUNDLED VERSION CHECKER #
+    ###################################################################################
+    
+    # Links to a direct download of the mod; fetched from the online version file
+    # Used to download updates through LunaLib's main menu version checker UI
+    #"directDownloadURL":"https://github.com/LazyWizard/version-checker/releases/latest/download/Version_Checker.zip",
+    "directDownloadURL":"https://github.com/LazyWizard/version-checker/releases/download/2.0b/Version_Checker_2.0b.zip",
+    
+    # Point at a directly accessible text file; fetched from the online version file
+    # The contents of said file will be shown for that mod in LunaLib's main menu version checker UI
+    "changelogURL":"https://raw.githubusercontent.com/LazyWizard/version-checker/refs/heads/master/mod/changelog.txt"
 }
